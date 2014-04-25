@@ -45,7 +45,7 @@ void TerrainApplication::createScene(void)
 
     mTerrainGlobals = OGRE_NEW Ogre::TerrainGlobalOptions();
     mTerrainGroup = OGRE_NEW Ogre::TerrainGroup(mSceneMgr, Ogre::Terrain::ALIGN_X_Z,
-            513, 12000.0f);
+            1025, 12000.0f);
     mTerrainGroup->setFilenameConvention(Ogre::String("BasicTutorial3Terrain"),
             Ogre::String("dat"));
     mTerrainGroup->setOrigin(Ogre::Vector3::ZERO);
@@ -63,11 +63,6 @@ void TerrainApplication::createScene(void)
             this->initBlendMaps(t);
         }
     }
-}
-//-------------------------------------------------------------------------------------
-void TerrainApplication::destroyScene(void)
-{
- 
 }
 
 //-------------------------------------------------------------------------------------
@@ -140,7 +135,7 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
     mTerrainGlobals->setCompositeMapDiffuse(light->getDiffuseColour());
 
     Ogre::Terrain::ImportData& defaultimp = mTerrainGroup->getDefaultImportSettings();
-    defaultimp.terrainSize = 513;
+    defaultimp.terrainSize = 1025;
     defaultimp.worldSize = 12000.0f;
     defaultimp.inputScale = 600; // due terrain.png is 8 bpp
     defaultimp.minBatchSize = 33;
@@ -157,16 +152,13 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
     defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_diffusespecular.dds");
     defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_normalheight.dds");
 }
-//-------------------------------------------------------------------------------------
-void TerrainApplication::createFrameListener(void)
-{
- 
-}
+
 //-------------------------------------------------------------------------------------
 bool TerrainApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
-    bool ret = BaseApplication::frameRenderingQueued(evt);
-    return ret;
+    bool res = BaseApplication::frameRenderingQueued(evt);
+    if (res) res = BaseApplication::frameRenderingQueued(evt);
+    return res;
 }
 
 
