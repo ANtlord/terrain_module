@@ -153,11 +153,40 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
     defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_normalheight.dds");
 }
 
+void TerrainApplication::destroyScene(void)
+{
+    OGRE_DELETE mTerrainGroup;
+    OGRE_DELETE mTerrainGlobals;
+}
+
+void TerrainApplication::createFrameListener(void)
+{
+    BaseApplication::createFrameListener();
+    mInfoLabel = mTrayMgr->createLabel(OgreBites::TL_TOP, "TInfo", "", 350);
+}
+
 //-------------------------------------------------------------------------------------
 bool TerrainApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
     bool res = BaseApplication::frameRenderingQueued(evt);
-    if (res) res = BaseApplication::frameRenderingQueued(evt);
+    if (mTerrainGroup->isDerivedDataUpdateInProgress()) {
+        mTrayMgr->moveWidgetToTray(mInfoLabel, OgreBites::TL_TOP, 0);
+        mInfoLabel->show();
+        if (mTerrainsImported) {
+            mInfoLabel->setCaption("Building terrain, please wait...");
+        }
+        else {
+            mInfoLabel->setCaption("Updating textures, patience...");
+        }
+    }
+    else {
+        mTrayMgr->removeWidgetFromTray(mInfoLabel);
+        mInfoLabel->hide();
+        if (mTerrainsImported) {
+            mTerrainGroup->saveAllTerrains(true);
+            mTerrainsImported = false;
+        }
+    }
     return res;
 }
 

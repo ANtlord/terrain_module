@@ -29,6 +29,8 @@ public:
 protected:
     virtual void createScene(void);
     virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
+    virtual void createFrameListener(void);
+    virtual void destroyScene(void);
 
 private:
     Ogre::TerrainGlobalOptions* mTerrainGlobals;
@@ -38,7 +40,7 @@ private:
     void defineTerrain(long x, long y);
     void initBlendMaps(Ogre::Terrain* terrain);
     void configureTerrainDefaults(Ogre::Light* light);
-
+    OgreBites::Label* mInfoLabel;
 };
 
 #endif // #ifndef __TerrainApplication_h_
