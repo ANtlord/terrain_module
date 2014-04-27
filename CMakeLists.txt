@@ -109,24 +109,41 @@ endif()
 set(HDRS
 	./include/BaseApplication.h
 	./include/TerrainApplication.h
+    ./include/PerlinNoiseTerrainGenerator.h
 )
  
 set(SRCS
 	./src/BaseApplication.cpp
 	./src/TerrainApplication.cpp
+    ./src/PerlinNoiseTerrainGenerator.cpp
 )
- 
+set(OGRE_INCLUDE_DIRS "/usr/local/include/OGRE")
+set(OGRE_SDK_BUILD true)
+function(ogre_add_component_include_dir COMPONENTNAME)
+	if (OGRE_SDK_BUILD)
+		include_directories("${OGRE_INCLUDE_DIR}/${COMPONENTNAME}")
+	else()
+		include_directories("${OGRE_SOURCE_DIR}/Components/${COMPONENTNAME}/include")	
+	endif()
+endfunction(ogre_add_component_include_dir)
+#set(OGRE_INCLUDE_DIRS, "/usr/local/include/OGRE;/usr/local/include/OGRE/Paging")
 include_directories( ${OIS_INCLUDE_DIRS}
 	${OGRE_INCLUDE_DIRS}
 	${OGRE_SAMPLES_INCLUDEPATH}
 	${OGRE_Overlay_INCLUDE_DIRS}
 )
+ogre_add_component_include_dir(Terrain)
+ogre_add_component_include_dir(Paging)
+
+message(STATUS ${OGRE_INCLUDE_DIRS})
+message(STATUS ${OGRE_SDK_BUILD})
+
  
 add_executable(OgreApp WIN32 ${HDRS} ${SRCS})
  
 set_target_properties(OgreApp PROPERTIES DEBUG_POSTFIX _d)
  
-target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} ${OGRE_Overlay_LIBRARIES})
+target_link_libraries(OgreApp ${OGRE_LIBRARIES} ${OIS_LIBRARIES} ${OGRE_Overlay_LIBRARIES} ${OGRE_Terrain_LIBRARIES} ${OGRE_Paging_LIBRARIES})
  
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/media)

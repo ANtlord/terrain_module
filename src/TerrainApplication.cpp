@@ -15,7 +15,15 @@ This source file is part of the
 -----------------------------------------------------------------------------
 */
 #include "../include/TerrainApplication.h"
+#define ENDLESS_PAGE_MIN_X (-0x7FFF)
+#define ENDLESS_PAGE_MIN_Y (-0x7FFF)
+#define ENDLESS_PAGE_MAX_X 0x7FFF
+#define ENDLESS_PAGE_MAX_Y 0x7FFF
 
+#define TERRAIN_WORLD_SIZE 12000.0f
+#define TERRAIN_SIZE 513
+#define HOLD_LOD_DISTANCE 3000.0
+#include <iostream>
 //-------------------------------------------------------------------------------------
 TerrainApplication::TerrainApplication(void)
 {
@@ -28,6 +36,7 @@ TerrainApplication::~TerrainApplication(void)
 //-------------------------------------------------------------------------------------
 void TerrainApplication::createScene(void)
 {
+    std::cout<<"FUCK5";
     mCamera->setPosition(Ogre::Vector3(1683, 50, 2116));
     mCamera->lookAt(Ogre::Vector3(1963, 50, 1660));
     mCamera->setNearClipDistance(0.1);
@@ -43,19 +52,42 @@ void TerrainApplication::createScene(void)
  
     mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
 
+    std::cout<<"FUCK4";
     mTerrainGlobals = OGRE_NEW Ogre::TerrainGlobalOptions();
-    mTerrainGroup = OGRE_NEW Ogre::TerrainGroup(mSceneMgr, Ogre::Terrain::ALIGN_X_Z,
-            1025, 12000.0f);
+    mTerrainGroup = OGRE_NEW TerrainGroup(mSceneMgr, Terrain::ALIGN_X_Z,
+            TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
     mTerrainGroup->setFilenameConvention(Ogre::String("BasicTutorial3Terrain"),
             Ogre::String("dat"));
-    mTerrainGroup->setOrigin(Ogre::Vector3::ZERO);
-    configureTerrainDefaults(light);
-    for (long x = 0; x <= 0; ++x)
-        for (long y = 0; y <= 0; ++y)
-            this->defineTerrain(x, y);
- 
-    mTerrainGroup->loadAllTerrains(true);
+    mTerrainGroup->setOrigin(mTerrainPos);
+    mTerrainGroup->setAutoUpdateLod( TerrainAutoUpdateLodFactory::getAutoUpdateLod(BY_DISTANCE) );
 
+    configureTerrainDefaults(light);
+
+    // Paging setup
+    std::cout<<"FUCK3";
+    mPageManager = OGRE_NEW PageManager();
+    // Since we're not loading any pages from .page files, we need a way just 
+    // to say we've loaded them without them actually being loaded
+    mPageManager->setPageProvider(&mDummyPageProvider);
+    mPageManager->addCamera(mCamera);
+    mPageManager->setDebugDisplayLevel(0);
+    mTerrainPaging = OGRE_NEW TerrainPaging(mPageManager);
+    mPagedWorld = mPageManager->createWorld();
+    mTerrainPagedWorldSection = mTerrainPaging->createWorldSection(mPagedWorld, mTerrainGroup, 400, 500, 
+        ENDLESS_PAGE_MIN_X, ENDLESS_PAGE_MIN_Y, 
+        ENDLESS_PAGE_MAX_X, ENDLESS_PAGE_MAX_Y);
+
+    std::cout<<"FUCK2";
+    mPerlinNoiseTerrainGenerator = OGRE_NEW PerlinNoiseTerrainGenerator;
+    mTerrainPagedWorldSection->setDefiner( mPerlinNoiseTerrainGenerator );
+    mTerrainGroup->freeTemporaryResources();
+
+    std::cout<<"FUCK1";
+    //for (long x = 0; x <= 0; ++x)
+        //for (long y = 0; y <= 0; ++y)
+            //this->defineTerrain(x, y);
+ 
+    //mTerrainGroup->loadAllTerrains(true);
     if (mTerrainsImported) {
         Ogre::TerrainGroup::TerrainIterator ti = mTerrainGroup->getTerrainIterator();
         while(ti.hasMoreElements()) {
@@ -135,7 +167,7 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
     mTerrainGlobals->setCompositeMapDiffuse(light->getDiffuseColour());
 
     Ogre::Terrain::ImportData& defaultimp = mTerrainGroup->getDefaultImportSettings();
-    defaultimp.terrainSize = 1025;
+    defaultimp.terrainSize = 513;
     defaultimp.worldSize = 12000.0f;
     defaultimp.inputScale = 600; // due terrain.png is 8 bpp
     defaultimp.minBatchSize = 33;
@@ -155,6 +187,11 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
 
 void TerrainApplication::destroyScene(void)
 {
+    if(mTerrainPaging) {
+        OGRE_DELETE mTerrainPaging;
+        mPageManager->destroyWorld( mPagedWorld );
+        OGRE_DELETE mPageManager;
+    }
     OGRE_DELETE mTerrainGroup;
     OGRE_DELETE mTerrainGlobals;
 }
@@ -169,24 +206,17 @@ void TerrainApplication::createFrameListener(void)
 bool TerrainApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
     bool res = BaseApplication::frameRenderingQueued(evt);
+
     if (mTerrainGroup->isDerivedDataUpdateInProgress()) {
         mTrayMgr->moveWidgetToTray(mInfoLabel, OgreBites::TL_TOP, 0);
         mInfoLabel->show();
-        if (mTerrainsImported) {
-            mInfoLabel->setCaption("Building terrain, please wait...");
-        }
-        else {
-            mInfoLabel->setCaption("Updating textures, patience...");
-        }
+        mInfoLabel->setCaption("Building terrain...");
     }
     else {
         mTrayMgr->removeWidgetFromTray(mInfoLabel);
         mInfoLabel->hide();
-        if (mTerrainsImported) {
-            mTerrainGroup->saveAllTerrains(true);
-            mTerrainsImported = false;
-        }
     }
+    mTerrainGroup->autoUpdateLodAll(false, Any( Real(HOLD_LOD_DISTANCE) ));
     return res;
 }
 

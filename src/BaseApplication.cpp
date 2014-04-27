@@ -15,6 +15,7 @@ This source file is part of the
 -----------------------------------------------------------------------------
 */
 #include "../include/BaseApplication.h"
+#include <iostream>
 
 //-------------------------------------------------------------------------------------
 BaseApplication::BaseApplication(void)
@@ -215,25 +216,33 @@ void BaseApplication::go(void)
 //-------------------------------------------------------------------------------------
 bool BaseApplication::setup(void)
 {
+    std::cout<<"FUCK11";
     mRoot = new Ogre::Root(mPluginsCfg);
 
     setupResources();
+    std::cout<<"FUCK10";
 
     bool carryOn = configure();
     if (!carryOn) return false;
 
+    
+    std::cout<<"FUCK9";
     chooseSceneManager();
     createCamera();
     createViewports();
 
+    std::cout<<"FUCK8";
     // Set default mipmap level (NB some APIs ignore this)
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
+    std::cout<<"FUCK7";
     // Create any resource listeners (for loading screens)
     createResourceListener();
     // Load resources
+    std::cout<<"FUCK6.5";
     loadResources();
 
+    std::cout<<"FUCK6";
     // Create the scene
     createScene();
 

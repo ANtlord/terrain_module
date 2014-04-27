@@ -16,9 +16,16 @@ This source file is part of the
 */
 #ifndef __TerrainApplication_h_
 #define __TerrainApplication_h_
+
+#include <OGRE/Terrain/OgreTerrainQuadTreeNode.h>
+#include <OGRE/Terrain/OgreTerrainMaterialGeneratorA.h>
+#include <OGRE/Terrain/OgreTerrainPagedWorldSection.h>
+#include <OGRE/Terrain/OgreTerrainPaging.h>
 #include <Terrain/OgreTerrain.h>
 #include <Terrain/OgreTerrainGroup.h>
 #include "BaseApplication.h"
+#include "PerlinNoiseTerrainGenerator.h"
+#include <OgreVector3.h>
 
 class TerrainApplication : public BaseApplication
 {
@@ -33,9 +40,31 @@ protected:
     virtual void destroyScene(void);
 
 private:
+    Ogre::TerrainPaging* mTerrainPaging;
+    Ogre::TerrainPagedWorldSection* mTerrainPagedWorldSection;
     Ogre::TerrainGlobalOptions* mTerrainGlobals;
     Ogre::TerrainGroup* mTerrainGroup;
+    Ogre::PageManager* mPageManager;
+    Ogre::PagedWorld* mPagedWorld;
+
+	PerlinNoiseTerrainGenerator* mPerlinNoiseTerrainGenerator;
+	bool mLodStatus;
+	bool mAutoLod;
     bool mTerrainsImported;
+    Ogre::Vector3 mTerrainPos;
+
+	/// This class just pretends to provide procedural page content to avoid page loading
+	class DummyPageProvider : public PageProvider
+	{
+	public:
+		bool prepareProceduralPage(Page* page, PagedWorldSection* section) { return true; }
+		bool loadProceduralPage(Page* page, PagedWorldSection* section) { return true; }
+		bool unloadProceduralPage(Page* page, PagedWorldSection* section) { return true; }
+		bool unprepareProceduralPage(Page* page, PagedWorldSection* section) { return true; }
+	};
+	DummyPageProvider mDummyPageProvider;
+
+
  
     void defineTerrain(long x, long y);
     void initBlendMaps(Ogre::Terrain* terrain);
