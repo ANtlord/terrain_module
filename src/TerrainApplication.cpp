@@ -83,18 +83,15 @@ void TerrainApplication::createScene(void)
     mTerrainGroup->freeTemporaryResources();
 
     std::cout<<"FUCK1";
-    //for (long x = 0; x <= 0; ++x)
-        //for (long y = 0; y <= 0; ++y)
-            //this->defineTerrain(x, y);
  
     //mTerrainGroup->loadAllTerrains(true);
-    if (mTerrainsImported) {
-        Ogre::TerrainGroup::TerrainIterator ti = mTerrainGroup->getTerrainIterator();
-        while(ti.hasMoreElements()) {
-            Ogre::Terrain* t = ti.getNext()->instance;
-            this->initBlendMaps(t);
-        }
-    }
+    //if (mTerrainsImported) {
+        //Ogre::TerrainGroup::TerrainIterator ti = mTerrainGroup->getTerrainIterator();
+        //while(ti.hasMoreElements()) {
+            //Ogre::Terrain* t = ti.getNext()->instance;
+            //this->initBlendMaps(t);
+        //}
+    //}
 }
 
 //-------------------------------------------------------------------------------------
@@ -161,10 +158,11 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
 {
     mTerrainGlobals->setMaxPixelError(8);
     mTerrainGlobals->setCompositeMapDistance(3000);
+    mTerrainGlobals->getDefaultMaterialGenerator()->setLightmapEnabled(false);
     
-    mTerrainGlobals->setLightMapDirection(light->getDerivedDirection());
     mTerrainGlobals->setCompositeMapAmbient(mSceneMgr->getAmbientLight());
     mTerrainGlobals->setCompositeMapDiffuse(light->getDiffuseColour());
+    mTerrainGlobals->setLightMapDirection(light->getDerivedDirection());
 
     Ogre::Terrain::ImportData& defaultimp = mTerrainGroup->getDefaultImportSettings();
     defaultimp.terrainSize = 513;
@@ -216,7 +214,8 @@ bool TerrainApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
         mTrayMgr->removeWidgetFromTray(mInfoLabel);
         mInfoLabel->hide();
     }
-    mTerrainGroup->autoUpdateLodAll(false, Any( Real(HOLD_LOD_DISTANCE) ));
+
+    mTerrainGroup->setAutoUpdateLod( TerrainAutoUpdateLodFactory::getAutoUpdateLod(BY_DISTANCE) );
     return res;
 }
 
