@@ -36,7 +36,7 @@ TerrainApplication::~TerrainApplication(void)
 //-------------------------------------------------------------------------------------
 void TerrainApplication::createScene(void)
 {
-    std::cout<<"FUCK5";
+
     mCamera->setPosition(Ogre::Vector3(1683, 50, 2116));
     mCamera->lookAt(Ogre::Vector3(1963, 50, 1660));
     mCamera->setNearClipDistance(0.1);
@@ -52,7 +52,7 @@ void TerrainApplication::createScene(void)
  
     mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
 
-    std::cout<<"FUCK4";
+
     mTerrainGlobals = OGRE_NEW Ogre::TerrainGlobalOptions();
     mTerrainGroup = OGRE_NEW TerrainGroup(mSceneMgr, Terrain::ALIGN_X_Z,
             TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
@@ -64,7 +64,7 @@ void TerrainApplication::createScene(void)
     configureTerrainDefaults(light);
 
     // Paging setup
-    std::cout<<"FUCK3";
+
     mPageManager = OGRE_NEW PageManager();
     // Since we're not loading any pages from .page files, we need a way just 
     // to say we've loaded them without them actually being loaded
@@ -73,53 +73,14 @@ void TerrainApplication::createScene(void)
     mPageManager->setDebugDisplayLevel(0);
     mTerrainPaging = OGRE_NEW TerrainPaging(mPageManager);
     mPagedWorld = mPageManager->createWorld();
-    mTerrainPagedWorldSection = mTerrainPaging->createWorldSection(mPagedWorld, mTerrainGroup, 400, 500, 
-        ENDLESS_PAGE_MIN_X, ENDLESS_PAGE_MIN_Y, 
+    mTerrainPagedWorldSection = mTerrainPaging->createWorldSection(mPagedWorld,
+            mTerrainGroup, 400, 500, ENDLESS_PAGE_MIN_X, ENDLESS_PAGE_MIN_Y, 
         ENDLESS_PAGE_MAX_X, ENDLESS_PAGE_MAX_Y);
 
-    std::cout<<"FUCK2";
     mPerlinNoiseTerrainGenerator = OGRE_NEW PerlinNoiseTerrainGenerator;
     mTerrainPagedWorldSection->setDefiner( mPerlinNoiseTerrainGenerator );
     mTerrainGroup->freeTemporaryResources();
-
-    std::cout<<"FUCK1";
- 
-    //mTerrainGroup->loadAllTerrains(true);
-    //if (mTerrainsImported) {
-        //Ogre::TerrainGroup::TerrainIterator ti = mTerrainGroup->getTerrainIterator();
-        //while(ti.hasMoreElements()) {
-            //Ogre::Terrain* t = ti.getNext()->instance;
-            //this->initBlendMaps(t);
-        //}
-    //}
 }
-
-//-------------------------------------------------------------------------------------
-void getTerrainImage(bool flipX, bool flipY, Ogre::Image& img)
-{
-    img.load("terrain.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    if (flipX)
-        img.flipAroundY();
-    if (flipY)
-        img.flipAroundX();
-}
-
-//-------------------------------------------------------------------------------------
-void TerrainApplication::defineTerrain(long x, long y)
-{
-    Ogre::String filename = mTerrainGroup->generateFilename(x, y);
-    if (Ogre::ResourceGroupManager::getSingleton().resourceExists(
-                mTerrainGroup->getResourceGroup(), filename)) {
-        mTerrainGroup->defineTerrain(x, y);
-    }
-    else {
-        Ogre::Image img;
-        getTerrainImage(x % 2 != 0, y % 2 != 0, img);
-        mTerrainGroup->defineTerrain(x, y, &img);
-        mTerrainsImported = true;
-    }
-}
-
 //-------------------------------------------------------------------------------------
 void TerrainApplication::initBlendMaps(Ogre::Terrain* terrain)
 {
@@ -131,10 +92,8 @@ void TerrainApplication::initBlendMaps(Ogre::Terrain* terrain)
     Ogre::Real fadeDist1 = 15;
     float* pBlend0 = blendMap0->getBlendPointer();
     float* pBlend1 = blendMap1->getBlendPointer();
-    for (Ogre::uint16 y = 0; y < terrain->getLayerBlendMapSize(); ++y)
-    {
-        for (Ogre::uint16 x = 0; x < terrain->getLayerBlendMapSize(); ++x)
-        {
+    for (Ogre::uint16 y = 0; y < terrain->getLayerBlendMapSize(); ++y) {
+        for (Ogre::uint16 x = 0; x < terrain->getLayerBlendMapSize(); ++x) {
             Ogre::Real tx, ty;
  
             blendMap0->convertImageToTerrainSpace(x, y, &tx, &ty);
@@ -185,12 +144,12 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
 
 void TerrainApplication::destroyScene(void)
 {
-    if(mTerrainPaging) {
+    if (mTerrainPaging) {
         OGRE_DELETE mTerrainPaging;
         mPageManager->destroyWorld( mPagedWorld );
         OGRE_DELETE mPageManager;
     }
-    OGRE_DELETE mTerrainGroup;
+    //OGRE_DELETE mTerrainGroup;    I don't know how delete this object from heap.
     OGRE_DELETE mTerrainGlobals;
 }
 
