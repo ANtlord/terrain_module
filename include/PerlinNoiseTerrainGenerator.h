@@ -10,4 +10,5 @@ class PerlinNoiseTerrainGenerator : public TerrainPagedWorldSection::TerrainDefi
 {
     public:
         virtual void define(TerrainGroup* terrainGroup, long x, long y);
+        void initBlendMaps(Ogre::Terrain* terrain);
 };
