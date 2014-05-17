@@ -110,12 +110,14 @@ set(HDRS
 	./include/BaseApplication.h
 	./include/TerrainApplication.h
     ./include/PerlinNoiseTerrainGenerator.h
+    ./include/CustomProfile.h
 )
  
 set(SRCS
 	./src/BaseApplication.cpp
 	./src/TerrainApplication.cpp
     ./src/PerlinNoiseTerrainGenerator.cpp
+    ./src/CustomProfile.cpp
 )
 set(OGRE_INCLUDE_DIRS "/usr/local/include/OGRE")
 set(OGRE_SDK_BUILD true)

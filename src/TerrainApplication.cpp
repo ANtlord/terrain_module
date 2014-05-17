@@ -15,6 +15,7 @@ This source file is part of the
 -----------------------------------------------------------------------------
 */
 #include "../include/TerrainApplication.h"
+#include "../include/CustomProfile.h"
 #define ENDLESS_PAGE_MIN_X (-0x7FFF)
 #define ENDLESS_PAGE_MIN_Y (-0x7FFF)
 #define ENDLESS_PAGE_MAX_X 0x7FFF
@@ -36,7 +37,6 @@ TerrainApplication::~TerrainApplication(void)
 //-------------------------------------------------------------------------------------
 void TerrainApplication::createScene(void)
 {
-    std::cout<<"FUCK5";
     mCamera->setPosition(Ogre::Vector3(1683, 50, 2116));
     mCamera->lookAt(Ogre::Vector3(1963, 50, 1660));
     mCamera->setNearClipDistance(0.1);
@@ -52,7 +52,6 @@ void TerrainApplication::createScene(void)
  
     mSceneMgr->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
 
-    std::cout<<"FUCK4";
     mTerrainGlobals = OGRE_NEW Ogre::TerrainGlobalOptions();
     mTerrainGroup = OGRE_NEW TerrainGroup(mSceneMgr, Terrain::ALIGN_X_Z,
             TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
@@ -64,7 +63,6 @@ void TerrainApplication::createScene(void)
     configureTerrainDefaults(light);
 
     // Paging setup
-    std::cout<<"FUCK3";
     mPageManager = OGRE_NEW PageManager();
     // Since we're not loading any pages from .page files, we need a way just 
     // to say we've loaded them without them actually being loaded
@@ -77,13 +75,11 @@ void TerrainApplication::createScene(void)
         ENDLESS_PAGE_MIN_X, ENDLESS_PAGE_MIN_Y, 
         ENDLESS_PAGE_MAX_X, ENDLESS_PAGE_MAX_Y);
 
-    std::cout<<"FUCK2";
+    
     mPerlinNoiseTerrainGenerator = OGRE_NEW PerlinNoiseTerrainGenerator;
     mTerrainPagedWorldSection->setDefiner( mPerlinNoiseTerrainGenerator );
     mTerrainGroup->freeTemporaryResources();
 
-    std::cout<<"FUCK1";
- 
     //mTerrainGroup->loadAllTerrains(true);
     //if (mTerrainsImported) {
         //Ogre::TerrainGroup::TerrainIterator ti = mTerrainGroup->getTerrainIterator();
@@ -131,10 +127,8 @@ void TerrainApplication::initBlendMaps(Ogre::Terrain* terrain)
     Ogre::Real fadeDist1 = 15;
     float* pBlend0 = blendMap0->getBlendPointer();
     float* pBlend1 = blendMap1->getBlendPointer();
-    for (Ogre::uint16 y = 0; y < terrain->getLayerBlendMapSize(); ++y)
-    {
-        for (Ogre::uint16 x = 0; x < terrain->getLayerBlendMapSize(); ++x)
-        {
+    for (Ogre::uint16 y = 0; y < terrain->getLayerBlendMapSize(); ++y) {
+        for (Ogre::uint16 x = 0; x < terrain->getLayerBlendMapSize(); ++x) {
             Ogre::Real tx, ty;
  
             blendMap0->convertImageToTerrainSpace(x, y, &tx, &ty);
@@ -158,29 +152,34 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
 {
     mTerrainGlobals->setMaxPixelError(8);
     mTerrainGlobals->setCompositeMapDistance(3000);
-    mTerrainGlobals->getDefaultMaterialGenerator()->setLightmapEnabled(false);
+    Ogre::TerrainMaterialGeneratorPtr generator = mTerrainGlobals->getDefaultMaterialGenerator();
+    generator->setLightmapEnabled(false);
+    Ogre::CustomProfile profile(generator.getPointer(), "qwe", "asd");
+    generator->setActiveProfile("qwe");
+    //Ogre::TerrainMaterialGenerator::Profile * profile =
+        //Ogre::TerrainMaterialGenerator::Profile(generator, "customProfile", "short desc");
     
     mTerrainGlobals->setCompositeMapAmbient(mSceneMgr->getAmbientLight());
     mTerrainGlobals->setCompositeMapDiffuse(light->getDiffuseColour());
     mTerrainGlobals->setLightMapDirection(light->getDerivedDirection());
 
-    Ogre::Terrain::ImportData& defaultimp = mTerrainGroup->getDefaultImportSettings();
-    defaultimp.terrainSize = 513;
-    defaultimp.worldSize = 12000.0f;
-    defaultimp.inputScale = 600; // due terrain.png is 8 bpp
-    defaultimp.minBatchSize = 33;
-    defaultimp.maxBatchSize = 65;
+    //Ogre::Terrain::ImportData& defaultimp = mTerrainGroup->getDefaultImportSettings();
+    //defaultimp.terrainSize = 513;
+    //defaultimp.worldSize = 12000.0f;
+    //defaultimp.inputScale = 600; // due terrain.png is 8 bpp
+    //defaultimp.minBatchSize = 33;
+    //defaultimp.maxBatchSize = 65;
 
-    defaultimp.layerList.resize(3);
-    defaultimp.layerList[0].worldSize = 100;
-    defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_diffusespecular.dds");
-    defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_normalheight.dds");
-    defaultimp.layerList[1].worldSize = 30;
-    defaultimp.layerList[1].textureNames.push_back("grass_green-01_diffusespecular.dds");
-    defaultimp.layerList[1].textureNames.push_back("grass_green-01_normalheight.dds");
-    defaultimp.layerList[2].worldSize = 200;
-    defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_diffusespecular.dds");
-    defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_normalheight.dds");
+    //defaultimp.layerList.resize(3);
+    //defaultimp.layerList[0].worldSize = 100;
+    //defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_diffusespecular.dds");
+    //defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_normalheight.dds");
+    //defaultimp.layerList[1].worldSize = 30;
+    //defaultimp.layerList[1].textureNames.push_back("grass_green-01_diffusespecular.dds");
+    //defaultimp.layerList[1].textureNames.push_back("grass_green-01_normalheight.dds");
+    //defaultimp.layerList[2].worldSize = 200;
+    //defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_diffusespecular.dds");
+    //defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_normalheight.dds");
 }
 
 void TerrainApplication::destroyScene(void)
@@ -190,7 +189,7 @@ void TerrainApplication::destroyScene(void)
         mPageManager->destroyWorld( mPagedWorld );
         OGRE_DELETE mPageManager;
     }
-    OGRE_DELETE mTerrainGroup;
+    //OGRE_DELETE mTerrainGroup;
     OGRE_DELETE mTerrainGlobals;
 }
 
