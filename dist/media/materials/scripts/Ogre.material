@@ -18,6 +18,25 @@ material Ogre/Earring
 	}
 }
 
+
+material Ogre/TerrainSkin
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.3 0.8 0.3
+
+			texture_unit
+			{
+				texture GreenSkin.jpg
+				tex_address_mode mirror
+			}
+		}
+	}
+}
+
+
 material Ogre/Skin
 {
 	technique

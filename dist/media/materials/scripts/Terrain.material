@@ -1,0 +1,127 @@
+material AlphaSplatTerrain
+{
+    technique
+    {
+        pass
+        {
+            vertex_program_ref AlphaSplatTerrain/VP
+            {
+                param_named_auto worldViewProj      worldviewproj_matrix
+
+                param_named_auto LightDiffuse[0] light_diffuse_colour 0
+                param_named_auto LightDiffuse[1] light_diffuse_colour 1
+
+                param_named_auto LightPosition[0] light_position_object_space 0
+                param_named_auto LightPosition[1] light_position_object_space 1
+
+                param_named_auto LightAttenuation[0] light_attenuation 0
+                param_named_auto LightAttenuation[1] light_attenuation 1
+
+                param_named_auto lightAmbient ambient_light_colour
+                param_named materialDiffuse float4 1.0 1.0 1.0 1.0
+                param_named materialAmbient float4 0.6 0.6 0.6 1.0
+ 
+                param_named pageSize float 512
+                param_named_auto worldMat world_matrix
+                        param_named_auto fogSettings fog_params
+                           param_named textureTileSize float 10
+                           param_named alpha0TextureCoordAdjust float4 0 1 0 1
+                           param_named alpha1TextureCoordAdjust float4 0 1 0 1
+            }
+ 
+            fragment_program_ref AlphaSplatTerrain/FP
+            {
+                param_named alpha0Mask float4 1 1 1 0
+                param_named alpha1Mask float4 0 0 0 0
+            }
+            texture_unit
+            {
+                texture_alias AlphaMap1
+                tex_address_mode clamp
+            }
+            texture_unit
+            {
+                texture_alias AlphaMap2
+                tex_address_mode clamp
+            }
+            texture_unit
+            {
+                texture_alias Splat1
+                filtering anisotropic
+            }
+            texture_unit
+            {
+                texture_alias Splat2
+                filtering anisotropic
+            }
+            texture_unit
+            {    
+                texture_alias Splat3
+                filtering anisotropic
+            }
+            texture_unit
+            {    
+                texture_alias Splat4
+                tex_address_mode wrap
+            }
+            texture_unit
+            {    
+                texture_alias Splat5
+                tex_address_mode wrap
+            }
+            texture_unit
+            {    
+                texture_alias Splat6
+                tex_address_mode wrap
+            }
+ 
+            texture_unit
+            {    
+                texture_alias Splat7
+                tex_address_mode wrap
+            }
+ 
+            texture_unit
+            {    
+                texture_alias Splat8
+                tex_address_mode wrap
+            }
+ 
+            texture_unit
+            {
+                texture_alias Detail
+                tex_address_mode wrap
+            }
+        }
+    }
+ 
+    // Fallback technique
+    technique
+    {
+        pass
+        {
+            shading gouraud
+ 
+            texture_unit
+            {
+                texture_alias Fallback
+            }
+        }
+    }
+}
+ 
+material DemoSplatTerrainShader : AlphaSplatTerrain
+{
+    set_texture_alias AlphaMap1        alphamap1.png
+    set_texture_alias AlphaMap2        black.png
+    set_texture_alias Splat1        splatting1.png
+    set_texture_alias Splat2        splatting2.png
+    set_texture_alias Splat3        splatting3.png
+    set_texture_alias Splat4        splatting4.png
+    set_texture_alias Splat5        splatting5.png
+    set_texture_alias Splat6        splatting6.png
+    set_texture_alias Splat7        splatting7.png
+    set_texture_alias Splat8        splatting8.png
+    set_texture_alias Detail        Detail3.jpg
+    set_texture_alias Fallback        cooltex.jpg
+}

@@ -2,6 +2,7 @@
 
 using namespace Ogre;
 #include <OgreTerrain.h>
+#include <Terrain/OgreTerrainMaterialGenerator.h>
 
 CustomProfile::CustomProfile(TerrainMaterialGenerator* parent, const String& name,
         const String& desc) : TerrainMaterialGenerator::Profile(parent, name,
@@ -30,16 +31,16 @@ MaterialPtr CustomProfile::generate(const Terrain* terrain)
      
     // Set Ogre material 
     mat = MaterialManager::getSingleton().getByName("Ogre/Skin");
-    //mat = Ogre::MaterialManager::getSingleton().getByName(((TerrainMaterial*)getParent())->mMaterialName);
+    //mat = Ogre::MaterialManager::getSingleton().getByName(((Ogre::TerrainMaterialGenerator*)getParent())->mMaterialName);
 
     // Get default pass
-    //Ogre::Pass *p = mat->getTechnique(0)->getPass(0);	
+    Ogre::Pass *p = mat->getTechnique(0)->getPass(0);
 
     // Add terrain's global normalmap to renderpass so the fragment program can find it.
-    //Ogre::TextureUnitState *tu = p->createTextureUnitState(matName+"/nm");
+    Ogre::TextureUnitState *tu = p->createTextureUnitState(matName+"/nm");
 
-    //Ogre::TexturePtr nmtx = terrain->getTerrainNormalMap();
-    //tu->_setTexturePtr(nmtx);
+    Ogre::TexturePtr nmtx = terrain->getTerrainNormalMap();
+    tu->setTexturePtr(nmtx);
     
     return mat;
 }
