@@ -155,7 +155,7 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
     Ogre::TerrainMaterialGeneratorPtr generator = mTerrainGlobals->getDefaultMaterialGenerator();
     generator->setLightmapEnabled(false);
     Ogre::CustomProfile profile(generator.getPointer(), "qwe", "asd");
-    generator->setActiveProfile("qwe");
+    generator->setActiveProfile(&profile);
     //Ogre::TerrainMaterialGenerator::Profile * profile =
         //Ogre::TerrainMaterialGenerator::Profile(generator, "customProfile", "short desc");
     

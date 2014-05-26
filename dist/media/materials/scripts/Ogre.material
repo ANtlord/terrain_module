@@ -29,7 +29,7 @@ material Ogre/TerrainSkin
 
 			texture_unit
 			{
-				texture GreenSkin.jpg
+				texture tusk.jpg
 				tex_address_mode mirror
 			}
 		}

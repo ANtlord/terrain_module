@@ -1,0 +1,27 @@
+fragment_program MyFragmentShader1 cg
+{
+    source Ogre3DBeginnerGuideShaders.cg
+    entry_point MyFragmentShader1
+    profiles ps_1_1 arbfp1
+}
+
+vertex_program MyVertexShader1 cg
+{
+    source Ogre3DBeginnerGuideShaders.cg
+    entry_point MyVertexShader1
+    profiles vs_1_1 arbvp1
+
+    default_params
+    {
+        param_named_auto worldViewMatrix worldviewproj_matrix
+    }
+}
+
+material Study/test1 {
+    technique {
+        pass {
+            vertex_program_ref MyVertexShader1 {}
+            fragment_program_ref MyFragmentShader1 {}
+        }
+    }
+}
