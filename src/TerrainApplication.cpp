@@ -26,8 +26,10 @@ This source file is part of the
 #define HOLD_LOD_DISTANCE 3000.0
 #include <iostream>
 //-------------------------------------------------------------------------------------
-TerrainApplication::TerrainApplication(void)
+TerrainApplication::TerrainApplication(void) : BaseApplication()
 {
+	mTerrainPos = Vector3::ZERO;
+	mTerrainsImported=false;
 }
 //-------------------------------------------------------------------------------------
 TerrainApplication::~TerrainApplication(void)
@@ -57,7 +59,9 @@ void TerrainApplication::createScene(void)
             TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
     mTerrainGroup->setFilenameConvention(Ogre::String("BasicTutorial3Terrain"),
             Ogre::String("dat"));
-    mTerrainGroup->setOrigin(mTerrainPos);
+    //mTerrainGroup->setOrigin(mTerrainPos);
+	mTerrainGroup->setOrigin(mTerrainPos + Vector3(TERRAIN_WORLD_SIZE/2, 0,
+                TERRAIN_WORLD_SIZE/2));
     mTerrainGroup->setAutoUpdateLod( TerrainAutoUpdateLodFactory::getAutoUpdateLod(BY_DISTANCE) );
 
     configureTerrainDefaults(light);
@@ -78,9 +82,7 @@ void TerrainApplication::createScene(void)
     
     mPerlinNoiseTerrainGenerator = OGRE_NEW PerlinNoiseTerrainGenerator;
     mTerrainPagedWorldSection->setDefiner( mPerlinNoiseTerrainGenerator );
-    mTerrainGroup->freeTemporaryResources();
 
-    //mTerrainGroup->loadAllTerrains(true);
     //if (mTerrainsImported) {
         //Ogre::TerrainGroup::TerrainIterator ti = mTerrainGroup->getTerrainIterator();
         //while(ti.hasMoreElements()) {
@@ -88,6 +90,8 @@ void TerrainApplication::createScene(void)
             //this->initBlendMaps(t);
         //}
     //}
+
+    mTerrainGroup->freeTemporaryResources();
 }
 
 //-------------------------------------------------------------------------------------
@@ -152,10 +156,13 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
 {
     mTerrainGlobals->setMaxPixelError(8);
     mTerrainGlobals->setCompositeMapDistance(3000);
-    Ogre::TerrainMaterialGeneratorPtr generator = mTerrainGlobals->getDefaultMaterialGenerator();
+    Ogre::TerrainMaterialGeneratorPtr generator;
+    generator.bind(new Ogre::CustomMaterialGenetator());
+    //generator = mTerrainGlobals->getDefaultMaterialGenerator();
     generator->setLightmapEnabled(false);
-    Ogre::CustomProfile profile(generator.getPointer(), "qwe", "asd");
-    generator->setActiveProfile(&profile);
+    //Ogre::CustomMaterialGenetator::CustomProfile profile(generator.getPointer(), "qwe", "asd");
+    //generator->setActiveProfile(&profile);
+    mTerrainGlobals->setDefaultMaterialGenerator(generator);
     //Ogre::TerrainMaterialGenerator::Profile * profile =
         //Ogre::TerrainMaterialGenerator::Profile(generator, "customProfile", "short desc");
     
@@ -163,13 +170,14 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
     mTerrainGlobals->setCompositeMapDiffuse(light->getDiffuseColour());
     mTerrainGlobals->setLightMapDirection(light->getDerivedDirection());
 
-    //Ogre::Terrain::ImportData& defaultimp = mTerrainGroup->getDefaultImportSettings();
-    //defaultimp.terrainSize = 513;
-    //defaultimp.worldSize = 12000.0f;
-    //defaultimp.inputScale = 600; // due terrain.png is 8 bpp
-    //defaultimp.minBatchSize = 33;
-    //defaultimp.maxBatchSize = 65;
+    Ogre::Terrain::ImportData& defaultimp = mTerrainGroup->getDefaultImportSettings();
+    defaultimp.terrainSize = TERRAIN_SIZE;
+    defaultimp.worldSize = TERRAIN_WORLD_SIZE;
+    defaultimp.inputScale = 600; // due terrain.png is 8 bpp
+    defaultimp.minBatchSize = 33;
+    defaultimp.maxBatchSize = 65;
 
+	// textures
     //defaultimp.layerList.resize(3);
     //defaultimp.layerList[0].worldSize = 100;
     //defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_diffusespecular.dds");

@@ -7,7 +7,7 @@
 #include "OgreGpuProgramManager.h"
 #include "OgreHighLevelGpuProgramManager.h"
 #include "OgreHardwarePixelBuffer.h"
- 
+
 namespace Ogre
 {
 	//---------------------------------------------------------------------
@@ -19,7 +19,7 @@ namespace Ogre
 		// similarly we double-up the normal and height (for parallax)
 		mLayerDecl.samplers.push_back(TerrainLayerSampler("albedo_specular", PF_BYTE_RGBA));
 		mLayerDecl.samplers.push_back(TerrainLayerSampler("normal_height", PF_BYTE_RGBA));
- 
+
 		mLayerDecl.elements.push_back(
 			TerrainLayerSamplerElement(0, TLSS_ALBEDO, 0, 3));
 		mLayerDecl.elements.push_back(
@@ -28,17 +28,17 @@ namespace Ogre
 			TerrainLayerSamplerElement(1, TLSS_NORMAL, 0, 3));
 		mLayerDecl.elements.push_back(
 			TerrainLayerSamplerElement(1, TLSS_HEIGHT, 3, 1));
- 
- 
+
+
 		mProfiles.push_back(OGRE_NEW SM2Profile(this, "SM2", "Profile for rendering on Shader Model 2 capable cards"));
 		// TODO - check hardware capabilities & use fallbacks if required (more profiles needed)
 		setActiveProfile("SM2");
- 
+
 	}
 	//---------------------------------------------------------------------
 	TerrainMaterialGeneratorD::~TerrainMaterialGeneratorD()
 	{
- 
+
 	}
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
@@ -49,7 +49,7 @@ namespace Ogre
 		, mLightmapEnabled(false)
 		, mCompositeMapEnabled(false)
 	{
- 
+
 	}
 	//---------------------------------------------------------------------
 	TerrainMaterialGeneratorD::SM2Profile::~SM2Profile()
@@ -108,11 +108,11 @@ namespace Ogre
 		// colourmap
 		if (terrain->getGlobalColourMapEnabled())
 			--freeTextureUnits;
- 
+
 		// each layer needs 2.25 units (1xdiffusespec, 1xnormalheight, 0.25xblend)
 		return static_cast<uint8>(freeTextureUnits / 2.25f);
- 
- 
+
+
 	}
 	//---------------------------------------------------------------------
 	MaterialPtr TerrainMaterialGeneratorD::SM2Profile::generate(const Terrain* terrain)
@@ -122,7 +122,7 @@ namespace Ogre
 		if (mat.isNull())
 		{
 			MaterialManager& matMgr = MaterialManager::getSingleton();
- 
+
 			// it's important that the names are deterministic for a given terrain, so
 			// use the terrain pointer as an ID
 			const String& matName = terrain->getMaterialName();
@@ -134,9 +134,9 @@ namespace Ogre
 		}
 		// clear everything
 		mat->removeAllTechniques();
- 
+
 		addTechnique(mat, terrain, HIGH_LOD);
- 
+
 		// LOD
 		if(mCompositeMapEnabled)
 		{
@@ -147,11 +147,11 @@ namespace Ogre
 			Technique* lowLodTechnique = mat->getTechnique(1);
 			lowLodTechnique->setLodIndex(1);
 		}
- 
+
 		updateParams(mat, terrain);
- 
+
 		return mat;
- 
+
 	}
 	//---------------------------------------------------------------------
 	MaterialPtr TerrainMaterialGeneratorD::SM2Profile::generateForCompositeMap(const Terrain* terrain)
@@ -161,7 +161,7 @@ namespace Ogre
 		if (mat.isNull())
 		{
 			MaterialManager& matMgr = MaterialManager::getSingleton();
- 
+
 			// it's important that the names are deterministic for a given terrain, so
 			// use the terrain pointer as an ID
 			const String& matName = terrain->getMaterialName() + "/comp";
@@ -173,13 +173,13 @@ namespace Ogre
 		}
 		// clear everything
 		mat->removeAllTechniques();
- 
+
 		addTechnique(mat, terrain, RENDER_COMPOSITE_MAP);
- 
+
 		updateParamsForCompositeMap(mat, terrain);
- 
+
 		return mat;
- 
+
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::addTechnique(
@@ -187,11 +187,11 @@ namespace Ogre
 	{
 		Technique* tech = mat->createTechnique();
 		tech->setSchemeName("GBuffer");
- 
+
 		// Only supporting one pass
 		Pass* pass = tech->createPass();
 		//pass->setName("NO_DEFERRED");
- 
+
 		GpuProgramManager& gmgr = GpuProgramManager::getSingleton();
 		HighLevelGpuProgramManager& hmgr = HighLevelGpuProgramManager::getSingleton();
 		if (!mShaderGen)
@@ -202,39 +202,39 @@ namespace Ogre
 			{
 				// todo
 			}
- 
+
 			// check SM3 features
 			mSM3Available = GpuProgramManager::getSingleton().isSyntaxSupported("ps_3_0");
 			mSM4Available = GpuProgramManager::getSingleton().isSyntaxSupported("ps_4_0");
- 
+
 		}
 		HighLevelGpuProgramPtr vprog = mShaderGen->generateVertexProgram(this, terrain, tt);
 		HighLevelGpuProgramPtr fprog = mShaderGen->generateFragmentProgram(this, terrain, tt);
- 
+
 		pass->setVertexProgram(vprog->getName());
 		pass->setFragmentProgram(fprog->getName());
- 
+
 		if (tt == HIGH_LOD || tt == RENDER_COMPOSITE_MAP)
 		{
 			// global normal map
 			TextureUnitState* tu = pass->createTextureUnitState();
 			tu->setTextureName(terrain->getTerrainNormalMap()->getName());
 			tu->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
- 
+
 			// global colour map
 			if (terrain->getGlobalColourMapEnabled() && isGlobalColourMapEnabled())
 			{
 				tu = pass->createTextureUnitState(terrain->getGlobalColourMap()->getName());
 				tu->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 			}
- 
+
 			// light map
 			if (isLightmapEnabled())
 			{
 				tu = pass->createTextureUnitState(terrain->getLightmap()->getName());
 				tu->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 			}
- 
+
 			// blend maps
 			uint maxLayers = getMaxLayers(terrain);
 			uint numBlendTextures = std::min(terrain->getBlendTextureCount(maxLayers), terrain->getBlendTextureCount());
@@ -244,17 +244,17 @@ namespace Ogre
 				tu = pass->createTextureUnitState(terrain->getBlendTextureName(i));
 				tu->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 			}
- 
+
 			// layer textures
 			for (uint i = 0; i < numLayers; ++i)
 			{
 				// diffuse / specular
 				pass->createTextureUnitState(terrain->getLayerTextureName(i, 0));
- 
+
 				// normal / height
 				pass->createTextureUnitState(terrain->getLayerTextureName(i, 1));
 			}
- 
+
 		}
 		else
 		{
@@ -263,16 +263,16 @@ namespace Ogre
 			TextureUnitState* tu = pass->createTextureUnitState();
 			tu->setTextureName(terrain->getCompositeMap()->getName());
 			tu->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
- 
+
 			// That's it!
- 
+
 		}
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::updateParams(const MaterialPtr& mat, const Terrain* terrain)
 	{
 		mShaderGen->updateParams(this, mat, terrain, false);
- 
+
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::updateParamsForCompositeMap(const MaterialPtr& mat, const Terrain* terrain)
@@ -286,7 +286,7 @@ namespace Ogre
 			const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
 	{
 		HighLevelGpuProgramPtr ret = createVertexProgram(prof, terrain, tt);
- 
+
 		StringUtil::StrStreamType sourceStr;
 		generateVertexProgramSource(prof, terrain, tt, sourceStr);
 		ret->setSource(sourceStr.str());
@@ -296,9 +296,9 @@ namespace Ogre
 		LogManager::getSingleton().stream(LML_TRIVIAL) << "*** Terrain Vertex Program: " 
 			<< ret->getName() << " ***\n" << ret->getSource() << "\n***   ***";
 #endif
- 
+
 		return ret;
- 
+
 	}
 	//---------------------------------------------------------------------
 	HighLevelGpuProgramPtr 
@@ -306,18 +306,18 @@ namespace Ogre
 		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
 	{
 		HighLevelGpuProgramPtr ret = createFragmentProgram(prof, terrain, tt);
- 
+
 		StringUtil::StrStreamType sourceStr;
 		generateFragmentProgramSource(prof, terrain, tt, sourceStr);
 		ret->setSource(sourceStr.str());
 		ret->load();
 		defaultFpParams(prof, terrain, tt, ret);
- 
+
 #if 1
 		LogManager::getSingleton().stream(LML_CRITICAL) << "*** Terrain Fragment Program: " 
 			<< ret->getName() << " ***\n" << ret->getSource() << "\n***   ***";
 #endif
- 
+
 		return ret;
 	}
 	//---------------------------------------------------------------------
@@ -325,34 +325,34 @@ namespace Ogre
 		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, StringUtil::StrStreamType& outStream)
 	{
 		generateVpHeader(prof, terrain, tt, outStream);
- 
+
 		if (tt != LOW_LOD)
 		{
 			uint maxLayers = prof->getMaxLayers(terrain);
 			uint numLayers = std::min(maxLayers, static_cast<uint>(terrain->getLayerCount()));
- 
+
 			for (uint i = 0; i < numLayers; ++i)
 				generateVpLayer(prof, terrain, tt, i, outStream);
 		}
- 
+
 		generateVpFooter(prof, terrain, tt, outStream);
- 
+
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::ShaderHelper::generateFragmentProgramSource(
 		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, StringUtil::StrStreamType& outStream)
 	{
 		generateFpHeader(prof, terrain, tt, outStream);
- 
+
 		if (tt != LOW_LOD)
 		{
 			uint maxLayers = prof->getMaxLayers(terrain);
 			uint numLayers = std::min(maxLayers, static_cast<uint>(terrain->getLayerCount()));
- 
+
 			for (uint i = 0; i < numLayers; ++i)
 				generateFpLayer(prof, terrain, tt, i, outStream);
 		}
- 
+
 		generateFpFooter(prof, terrain, tt, outStream);
 	}
 	//---------------------------------------------------------------------
@@ -367,16 +367,16 @@ namespace Ogre
 		params->setNamedAutoConstant("lodMorph", GpuProgramParameters::ACT_CUSTOM, 
 			Terrain::LOD_MORPH_CUSTOM_PARAM);
 		params->setNamedAutoConstant("fogParams", GpuProgramParameters::ACT_FOG_PARAMS);
- 
+
 		if (terrain->_getUseVertexCompression() && tt != RENDER_COMPOSITE_MAP)
 		{
 			Matrix4 posIndexToObjectSpace;
 			terrain->getPointTransform(&posIndexToObjectSpace);
 			params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
 		}
- 
- 
- 
+
+
+
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::ShaderHelper::defaultFpParams(
@@ -403,7 +403,7 @@ namespace Ogre
 			// high lod
 			updateVpParams(prof, terrain, HIGH_LOD, p->getVertexProgramParameters());
 			updateFpParams(prof, terrain, HIGH_LOD, p->getFragmentProgramParameters());
- 
+
 			if(prof->isCompositeMapEnabled())
 			{
 				// low lod
@@ -433,13 +433,13 @@ namespace Ogre
 				);
 			params->setNamedConstant("uvMul_" + StringConverter::toString(i), uvMul);
 		}
- 
+
 		if (terrain->_getUseVertexCompression() && tt != RENDER_COMPOSITE_MAP)
 		{
 			Real baseUVScale = 1.0f / (terrain->getSize() - 1);
 			params->setNamedConstant("baseUVScale", baseUVScale);
 		}
- 
+
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::ShaderHelper::updateFpParams(
@@ -449,7 +449,7 @@ namespace Ogre
 		// TODO - parameterise this?
 		/*Vector4 scaleBiasSpecular(0.03, -0.04, 32, 1);
 		params->setNamedConstant("scaleBiasSpecular", scaleBiasSpecular);*/
- 
+
 	}
 	//---------------------------------------------------------------------
 	String TerrainMaterialGeneratorD::SM2Profile::ShaderHelper::getChannel(uint idx)
@@ -473,7 +473,7 @@ namespace Ogre
 		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
 	{
 		String progName = terrain->getMaterialName() + "/sm2/vp";
- 
+
 		switch(tt)
 		{
 		case HIGH_LOD:
@@ -486,17 +486,17 @@ namespace Ogre
 			progName += "/comp";
 			break;
 		}
- 
+
 		return progName;
- 
+
 	}
 	//---------------------------------------------------------------------
 	String TerrainMaterialGeneratorD::SM2Profile::ShaderHelper::getFragmentProgramName(
 		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt)
 	{
- 
+
 		String progName = terrain->getMaterialName() + "/sm2/fp";
- 
+
 		switch(tt)
 		{
 		case HIGH_LOD:
@@ -509,7 +509,7 @@ namespace Ogre
 			progName += "/comp";
 			break;
 		}
- 
+
 		return progName;
 	}
 	//---------------------------------------------------------------------
@@ -530,12 +530,12 @@ namespace Ogre
 		{
 			ret->unload();
 		}
- 
+
 		ret->setParameter("profiles", "vs_4_0 vs_3_0 vs_2_0 arbvp1");
 		ret->setParameter("entry_point", "main_vp");
- 
+
 		return ret;
- 
+
 	}
 	//---------------------------------------------------------------------
 	HighLevelGpuProgramPtr
@@ -544,7 +544,7 @@ namespace Ogre
 	{
 		HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
 		String progName = getFragmentProgramName(prof, terrain, tt);
- 
+
 		HighLevelGpuProgramPtr ret = mgr.getByName(progName);
 		if (ret.isNull())
 		{
@@ -555,12 +555,12 @@ namespace Ogre
 		{
 			ret->unload();
 		}
- 
+
 		ret->setParameter("profiles", "ps_4_0 ps_3_0 ps_2_x fp40 arbfp1");
 		ret->setParameter("entry_point", "main_fp");
- 
+
 		return ret;
- 
+
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::ShaderHelperCg::generateVpHeader(
@@ -580,17 +580,17 @@ namespace Ogre
 			outStream <<
 				"float4 pos : POSITION,\n"
 				"float2 uv  : TEXCOORD0,\n";
- 
+
 		}
 		if (tt != RENDER_COMPOSITE_MAP)
 			outStream << "float2 delta  : TEXCOORD1,\n"; // lodDelta, lodThreshold
- 
+
 		outStream << 
 			"uniform float4x4 worldMatrix,\n"
 			"uniform float4x4 viewMatrix,\n"
 			"uniform float4x4 viewProjMatrix,\n"
 			"uniform float2   lodMorph,\n"; // morph amount, morph LOD target
- 
+
 		if (compression)
 		{
 			outStream << 
@@ -605,15 +605,15 @@ namespace Ogre
 			++numUVMultipliers;
 		for (uint i = 0; i < numUVMultipliers; ++i)
 			outStream << "uniform float4 uvMul_" << i << ", \n";
- 
+
 		outStream <<
 			"out float4 oPos : POSITION,\n"
 			"out float4 oPosObj : TEXCOORD0\n";
- 
+
 		uint texCoordSet = 1;
 		outStream <<
 			", out float4 oUVMisc : TEXCOORD" << texCoordSet++ <<" // xy = uv, z = camDepth\n";
- 
+
 		// layer UV's premultiplied, packed as xy/zw
 		uint numUVSets = numLayers / 2;
 		if (numLayers % 2)
@@ -626,12 +626,12 @@ namespace Ogre
 					", out float4 oUV" << i << " : TEXCOORD" << texCoordSet++ << "\n";
 			}
 		}
- 
+
 		if (prof->getParent()->getDebugLevel() && tt != RENDER_COMPOSITE_MAP)
 		{
 			outStream << ", out float2 lodInfo : TEXCOORD" << texCoordSet++ << "\n";
 		}
- 
+
 		bool fog = terrain->getSceneManager()->getFogMode() != FOG_NONE && tt != RENDER_COMPOSITE_MAP;
 		if (fog)
 		{
@@ -639,7 +639,7 @@ namespace Ogre
 				", uniform float4 fogParams\n"
 				", out float fogVal : COLOR\n";
 		}
- 
+
 		// check we haven't exceeded texture coordinates
 		if (texCoordSet > 8)
 		{
@@ -647,7 +647,7 @@ namespace Ogre
 				"Requested options require too many texture coordinate sets! Try reducing the number of layers.",
 				__FUNCTION__);
 		}
- 
+
 		outStream <<
 			")\n"
 			"{\n";
@@ -661,7 +661,7 @@ namespace Ogre
 		outStream <<
 			"	float4 worldPos = mul(worldMatrix, pos);\n"
 			"	oPosObj = mul(viewMatrix, pos);\n";
- 
+
 		if (tt != RENDER_COMPOSITE_MAP)
 		{
 			// determine whether to apply the LOD morph to this vertex
@@ -683,7 +683,7 @@ namespace Ogre
 				// y == LOD morph
 				outStream << "lodInfo.y = toMorph * lodMorph.x;\n";
 			}
- 
+
 			// morph
 			switch (terrain->getAlignment())
 			{
@@ -698,8 +698,8 @@ namespace Ogre
 				break;
 			};
 		}
- 
- 
+
+
 		// generate UVs
 		if (tt != LOW_LOD)
 		{
@@ -707,23 +707,23 @@ namespace Ogre
 			{
 				uint layer  =  i * 2;
 				uint uvMulIdx = layer / 4;
- 
+
 				outStream <<
 					"	oUV" << i << ".xy = " << " uv.xy * uvMul_" << uvMulIdx << "." << getChannel(layer) << ";\n";
 				outStream <<
 					"	oUV" << i << ".zw = " << " uv.xy * uvMul_" << uvMulIdx << "." << getChannel(layer+1) << ";\n";
- 
+
 			}
- 
+
 		}	
- 
- 
+
+
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::ShaderHelperCg::generateFpHeader(
 		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, StringUtil::StrStreamType& outStream)
 	{
- 
+
 		// Main header
 		outStream << 
 			// helpers
@@ -731,7 +731,7 @@ namespace Ogre
 			"{ \n"
 			"	return v * 2 - 1;\n"
 			"}\n\n\n";
- 
+
 		outStream << 
 			"void main_fp(\n"
 			"float4 position : TEXCOORD0,\n"
@@ -740,12 +740,12 @@ namespace Ogre
 			" out float4 oColor2 : COLOR2,\n"
 			"uniform float cFarDistance,\n"
 			"uniform float4x4 viewMatrix,\n";
- 
- 
+
+
 		uint texCoordSet = 1;
 		outStream <<
 			"float4 uvMisc : TEXCOORD" << texCoordSet++ << ",\n";
- 
+
 		// UV's premultiplied, packed as xy/zw
 		uint maxLayers = prof->getMaxLayers(terrain);
 		uint numBlendTextures = std::min(terrain->getBlendTextureCount(maxLayers), terrain->getBlendTextureCount());
@@ -760,13 +760,13 @@ namespace Ogre
 				outStream <<
 					"float4 layerUV" << i << " : TEXCOORD" << texCoordSet++ << ", \n";
 			}
- 
+
 		}
 		if (prof->getParent()->getDebugLevel() && tt != RENDER_COMPOSITE_MAP)
 		{
 			outStream << "float2 lodInfo : TEXCOORD" << texCoordSet++ << ", \n";
 		}
- 
+
 		bool fog = terrain->getSceneManager()->getFogMode() != FOG_NONE && tt != RENDER_COMPOSITE_MAP;
 		if (fog)
 		{
@@ -774,9 +774,9 @@ namespace Ogre
 				"uniform float3 fogColour, \n"
 				"float fogVal : COLOR,\n";
 		}
- 
+
 		uint currentSamplerIdx = 0;
- 
+
 		if (tt == LOW_LOD)
 		{
 			// single composite map covers all the others below
@@ -787,21 +787,21 @@ namespace Ogre
 		{
 			outStream << 
 				"uniform sampler2D globalNormal : register(s" << currentSamplerIdx++ << ")\n";
- 
- 
+
+
 			if (terrain->getGlobalColourMapEnabled() && prof->isGlobalColourMapEnabled())
 			{
 				outStream << ", uniform sampler2D globalColourMap : register(s" 
 					<< currentSamplerIdx++ << ")\n";
 			}
- 
+
 			// Blend textures - sampler definitions
 			for (uint i = 0; i < numBlendTextures; ++i)
 			{
 				outStream << ", uniform sampler2D blendTex" << i 
 					<< " : register(s" << currentSamplerIdx++ << ")\n";
 			}
- 
+
 			// Layer textures - sampler definitions & UV multipliers
 			for (uint i = 0; i < numLayers; ++i)
 			{
@@ -811,7 +811,7 @@ namespace Ogre
 					<< " : register(s" << currentSamplerIdx++ << ")\n";
 			}
 		}
- 
+
 		// check we haven't exceeded samplers
 		if (currentSamplerIdx > 16)
 		{
@@ -819,7 +819,7 @@ namespace Ogre
 				"Requested options require too many texture samplers! Try reducing the number of layers.",
 				__FUNCTION__);
 		}
- 
+
 		outStream << 
 			") \n"
 			"{\n"
@@ -827,20 +827,20 @@ namespace Ogre
 			// base colour
 			"	oColor0 = float4(0,0,0,0);\n"
 			"   oColor1 = oColor2 = float4(1,1,1,1);\n";
- 
+
 		if (tt != LOW_LOD)
 		{
 			outStream << 
 				"	float3 normal = expand(tex2D(globalNormal, uv));\n";
 		}
- 
- 
- 
+
+
+
 			// set up accumulation areas
 		outStream << "	float3 diffuse = float3(0,0,0);\n"
 			"	float specular = 0;\n";
- 
- 
+
+
 		if (tt == LOW_LOD)
 		{
 			// we just do a single calculation from composite map
@@ -856,7 +856,7 @@ namespace Ogre
 			{
 				outStream << "	float4 blendTexVal" << i << " = tex2D(blendTex" << i << ", uv);\n";
 			}
- 
+
 			// derive the tangent space basis
 			// we do this in the pixel shader because we don't have per-vertex normals
 			// because of the LOD, we use a normal map
@@ -871,22 +871,22 @@ namespace Ogre
 				outStream << "	float3 tangent = float3(0, 0, -1);\n";
 				break;
 			};
- 
+
 			// We must do normal calculations here instead of the vertex program because terrain normals
 			// are provided by the "normal" texture, and not in vertex info. We multiply it by the viewMatrix
 			// so the normals are in eye-space instead of object-space, as required by deferred shading.
 			outStream << "	normal = mul(viewMatrix, float4(normal,0)).xyz;" << std::endl;
 			outStream << "	tangent = mul(viewMatrix, float4(tangent,0)).xyz;" << std::endl;
 			outStream << "	float3 binormal = cross(normal, tangent);" << std::endl;
- 
+
 			// derive final matrix
 			outStream << "	float3x3 TBN = float3x3(tangent, binormal, normal);\n";
- 
+
 			// set up lighting result placeholders for interpolation
 			outStream << "	float3 TSnormal;\n";
 		}
- 
- 
+
+
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::ShaderHelperCg::generateVpLayer(
@@ -904,16 +904,16 @@ namespace Ogre
 		String blendChannel = getChannel(layer-1);
 		String blendWeightStr = String("blendTexVal") + StringConverter::toString(blendIdx) + 
 			"." + blendChannel;
- 
+
 		// generate early-out conditional
 		/* Disable - causing some issues even when trying to force the use of texldd
 		if (layer && prof->_isSM3Available())
 			outStream << "  if (" << blendWeightStr << " > 0.0003)\n  { \n";
 		*/
- 
+
 		// generate UV
 		outStream << "	float2 uv" << layer << " = layerUV" << uvIdx << uvChannels << ";\n";
- 
+
 		// access TS normal map
 		outStream << "	TSnormal = expand(tex2D(normtex" << layer << ", uv" << layer << ")).rgb;\n";
 		if (layer)
@@ -924,11 +924,11 @@ namespace Ogre
 		{
 			outStream << "  oColor1.rgb = TSnormal;\n";
 		}
- 
+
 		// sample diffuse texture
 		outStream << "	float4 diffuseSpecTex" << layer 
 			<< " = tex2D(difftex" << layer << ", uv" << layer << ");\n";
- 
+
 		// apply to common
 		if (!layer)
 		{
@@ -941,9 +941,9 @@ namespace Ogre
 				<< ".rgb, " << blendWeightStr << ");\n";
 			outStream << "	specular = lerp(specular, diffuseSpecTex" << layer 
 				<< ".a, " << blendWeightStr << ");\n";
- 
+
 		}
- 
+
 		// End early-out
 		/* Disable - causing some issues even when trying to force the use of texldd
 		if (layer && prof->_isSM3Available())
@@ -954,11 +954,11 @@ namespace Ogre
 	void TerrainMaterialGeneratorD::SM2Profile::ShaderHelperCg::generateVpFooter(
 		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, StringUtil::StrStreamType& outStream)
 	{
- 
+
 		outStream << 
 			"	oPos = mul(viewProjMatrix, worldPos);\n" 
 			"	oUVMisc.xy = uv.xy;\n";
- 
+
 		bool fog = terrain->getSceneManager()->getFogMode() != FOG_NONE && tt != RENDER_COMPOSITE_MAP;
 		if (fog)
 		{
@@ -973,38 +973,38 @@ namespace Ogre
 					"	fogVal = 1 - saturate(1 / (exp(oPos.z * fogParams.x)));\n";
 			}
 		}
- 
- 
+
+
 		outStream << 
 			"}\n";
- 
- 
+
+
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::ShaderHelperCg::generateFpFooter(
 		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, StringUtil::StrStreamType& outStream)
 	{
- 
+
 		if (terrain->getGlobalColourMapEnabled() && prof->isGlobalColourMapEnabled())
 		{
 			// sample colour map and apply to diffuse
 			outStream << "	diffuse *= tex2D(globalColourMap, uv).rgb;\n";
 		}
- 
+
 		// diffuse lighting
 		outStream << "	oColor0.rgb += diffuse;\n"
 				"   oColor0.a += specular;\n";
- 
+
 		bool fog = terrain->getSceneManager()->getFogMode() != FOG_NONE && tt != RENDER_COMPOSITE_MAP;
 		if (fog)
 		{
 			outStream << "	oColor0.rgb = lerp(oColor0.rgb, fogColour, fogVal);\n";
 		}
- 
+
 		// Final return
 		outStream << "  oColor1 = float4(normalize(mul(oColor1.rgb, TBN)), length(position) / cFarDistance);\n"
 			<< "}\n";
- 
+
 	}
 	//---------------------------------------------------------------------
 }
