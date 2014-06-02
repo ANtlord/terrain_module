@@ -16,10 +16,10 @@ This source file is part of the
 */
 #include "../include/TerrainApplication.h"
 #include "../include/CustomProfile.h"
-#define ENDLESS_PAGE_MIN_X (-0x7FFF)
-#define ENDLESS_PAGE_MIN_Y (-0x7FFF)
-#define ENDLESS_PAGE_MAX_X 0x7FFF
-#define ENDLESS_PAGE_MAX_Y 0x7FFF
+#define ENDLESS_PAGE_MIN_X (-0x1)
+#define ENDLESS_PAGE_MIN_Y (-0x1)
+#define ENDLESS_PAGE_MAX_X 0x1
+#define ENDLESS_PAGE_MAX_Y 0x1
 
 #define TERRAIN_WORLD_SIZE 12000.0f
 #define TERRAIN_SIZE 513

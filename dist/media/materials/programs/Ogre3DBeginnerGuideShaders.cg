@@ -4,14 +4,21 @@ void MyVertexShader1(float4 position : POSITION, out float4 oPosition : POSITION
     oPosition = mul(worldViewMatrix, position);
     //texCoord = float4(sin(oPosition.x), sin(oPosition.y), sin(oPosition.z),
         //sin(oPosition.w));
-    texCoord = normalize(position)*50.;
-    texCoord.z = position.y/513;
+    //texCoord = normalize(position)*50.;
+    //texCoord.z = position.y/513;
+    texCoord.x = position.x/12000.;
+    texCoord.y = position.z/12000.;
 }
 
 void MyFragmentShader1(in float4 texCoord : TEXCOORD0, out float4 color: COLOR,
-    uniform sampler2D tex1, uniform sampler2D tex2)
+    uniform sampler2D tex1 : register(s0), uniform sampler2D tex2 : register(s1),  uniform sampler2D tex3 : register(s2))
 {
-    float4 color1 = tex2D(tex1, float2(texCoord.x, texCoord.y));
-    float4 color2 = tex2D(tex2, float2(texCoord.x, texCoord.y));
-    color = lerp(color1, color2, texCoord.z);
+    float4 blendColor = tex2D(tex1, float2(texCoord.x, texCoord.y));
+
+    float4 color1 = tex2D(tex2, float2(texCoord.x, texCoord.y));
+    float4 color2 = tex2D(tex3, float2(texCoord.x, texCoord.y));
+
+    color = (color1 * blendColor.g + color2 * blendColor.r);
+    //float4 color2 = tex2D(tex2, float2(texCoord.x, texCoord.y));
+    //color = lerp(color1, color2, texCoord.z);
 }

@@ -21,21 +21,26 @@ material Study/test1 {
     technique {
         pass {
 
-			texture_unit
+            fragment_program_ref MyFragmentShader1 {}
+            vertex_program_ref MyVertexShader1 {}
+
+			texture_unit 1
+			{
+				texture blending_map.png
+				tex_address_mode mirror
+			}
+
+			texture_unit 2
 			{
 				texture tusk.jpg
 				tex_address_mode mirror
 			}
 
-
-			texture_unit
+			texture_unit 3
 			{
 				texture GreenSkin.jpg
 				tex_address_mode mirror
 			}
-
-            fragment_program_ref MyFragmentShader1 {}
-            vertex_program_ref MyVertexShader1 {}
 
         }
     }
