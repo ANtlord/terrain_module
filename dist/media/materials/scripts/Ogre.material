@@ -24,6 +24,26 @@ material Ogre/Skin
 	{
 		pass
 		{
+			ambient 0.3 0.8 0.3 0.5
+
+            scene_blend alpha_blend
+/*            depth_write off*/
+			texture_unit
+			{
+                scale 0.05 0.05
+				texture Water02.jpg
+				tex_address_mode mirror
+			}
+		}
+	}
+}
+
+material Ogre/Skin
+{
+	technique
+	{
+		pass
+		{
 			ambient 0.3 0.8 0.3
 
 			texture_unit

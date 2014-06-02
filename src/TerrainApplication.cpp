@@ -28,6 +28,23 @@ TerrainApplication::~TerrainApplication(void)
 //-------------------------------------------------------------------------------------
 void TerrainApplication::createScene(void)
 {
+    Ogre::Plane plane(Ogre:: Vector3 :: UNIT_Y , 0);
+    Ogre::MeshManager::getSingleton().createPlane("ground",
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+            plane, 1500, 1500, 20, 20, true, 1, 5, 5, Ogre::Vector3::UNIT_Z);
+    Ogre::Entity * entGround = mSceneMgr->createEntity("GroundEntity" , "ground") ;
+    entGround->setMaterialName("Ogre/Skin");
+    Ogre::SceneNode * node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+    node->translate(0,100,0);
+    node->scale(100,100,100);
+    node->attachObject(entGround);
+
+    //Ogre::ColourValue fadeColour( 0.9 , 0.9 , 0.9 );
+    //mSceneMgr->setFog(Ogre:: FOG_LINEAR , fadeColour, 0.0 , 300 , 600 ) ;
+    //mWindow->getViewport( 0 ) ->setBackgroundColour(fadeColour) ;
+    mSceneMgr->setSkyDome( true , "Examples/CloudySky" , 5 , 8 , 500 ) ;
+    //mSceneMgr->setSkyBox(true, "Examples/CloudySky");
+
     mCamera->setPosition(Ogre::Vector3(1683, 50, 2116));
     mCamera->lookAt(Ogre::Vector3(1963, 50, 1660));
     mCamera->setNearClipDistance(0.1);
