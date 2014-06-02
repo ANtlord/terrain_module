@@ -20,8 +20,23 @@ vertex_program MyVertexShader1 cg
 material Study/test1 {
     technique {
         pass {
-            vertex_program_ref MyVertexShader1 {}
+
+			texture_unit
+			{
+				texture tusk.jpg
+				tex_address_mode mirror
+			}
+
+
+			texture_unit
+			{
+				texture GreenSkin.jpg
+				tex_address_mode mirror
+			}
+
             fragment_program_ref MyFragmentShader1 {}
+            vertex_program_ref MyVertexShader1 {}
+
         }
     }
 }

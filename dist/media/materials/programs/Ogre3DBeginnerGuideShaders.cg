@@ -1,10 +1,17 @@
-void MyFragmentShader1(out float4 color: COLOR)
-{
-    color = float4(0,0,1,0);
-}
-
 void MyVertexShader1(float4 position : POSITION, out float4 oPosition : POSITION,
-    uniform float4x4 worldViewMatrix)
+    uniform float4x4 worldViewMatrix, out float4 texCoord : TEXCOORD0)
 {
     oPosition = mul(worldViewMatrix, position);
+    //texCoord = float4(sin(oPosition.x), sin(oPosition.y), sin(oPosition.z),
+        //sin(oPosition.w));
+    texCoord = normalize(position)*50.;
+    texCoord.z = position.y/513;
+}
+
+void MyFragmentShader1(in float4 texCoord : TEXCOORD0, out float4 color: COLOR,
+    uniform sampler2D tex1, uniform sampler2D tex2)
+{
+    float4 color1 = tex2D(tex1, float2(texCoord.x, texCoord.y));
+    float4 color2 = tex2D(tex2, float2(texCoord.x, texCoord.y));
+    color = lerp(color1, color2, texCoord.z);
 }

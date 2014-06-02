@@ -60,12 +60,12 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
         MaterialManager::getSingleton().remove(matName);
      
     // Set Ogre material 
-    mat = MaterialManager::getSingleton().getByName("Ogre/TerrainSkin");
+    mat = MaterialManager::getSingleton().getByName("Study/test1");
     //mat = Ogre::MaterialManager::getSingleton().getByName(((Ogre::TerrainMaterialGenerator*)getParent())->mMaterialName);
 
     // Get default pass
-    Ogre::Pass *p = mat->getTechnique(0)->getPass(0);
-    std::cout<<"CustomProfile_DevLog::generate\n";
+//    Ogre::Pass *p = mat->getTechnique(0)->getPass(0);
+//    std::cout<<"CustomProfile_DevLog::generate\n";
 
     // Add terrain's global normalmap to renderpass so the fragment program can find it.
     //Ogre::TextureUnitState *tu = p->createTextureUnitState(matName+"/nm");
