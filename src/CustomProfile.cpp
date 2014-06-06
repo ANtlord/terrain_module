@@ -22,8 +22,8 @@ CustomMaterialGenetator::CustomMaterialGenetator()
     mLayerDecl.elements.push_back(
         TerrainLayerSamplerElement(1, TLSS_HEIGHT, 3, 1));
 
-
-    mProfiles.push_back(OGRE_NEW CustomProfile(this, "qwe", "Profile for rendering on Shader Model 2 capable cards"));
+    mProfiles.push_back(OGRE_NEW CustomProfile(this, "qwe",
+                "Profile for rendering on Shader Model 2 capable cards"));
     // TODO - check hardware capabilities & use fallbacks if required (more profiles needed)
     setActiveProfile("qwe");
 }
@@ -38,10 +38,10 @@ CustomMaterialGenetator::CustomProfile::CustomProfile(
         ) : TerrainMaterialGenerator::Profile(parent, name,
             desc)
 {
-
+    _material = MaterialManager::getSingleton().getByName("Study/test1");
 }
 
-CustomMaterialGenetator::CustomProfile::~CustomProfile ()
+CustomMaterialGenetator::CustomProfile::~CustomProfile()
 {
 
 }
@@ -53,14 +53,13 @@ bool CustomMaterialGenetator::CustomProfile::isVertexCompressionSupported() cons
 /// Generate / reuse a material for the terrain
 MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terrain)
 {
-    const Ogre::String matName = terrain->getMaterialName();        
+    //const Ogre::String matName = terrain->getMaterialName();        
     
-    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(matName);
-    if (!mat.isNull())
-        MaterialManager::getSingleton().remove(matName);
+    //Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(matName);
+    //if (!mat.isNull())
+        //MaterialManager::getSingleton().remove(matName);
      
     // Set Ogre material 
-    mat = MaterialManager::getSingleton().getByName("Study/test1");
     //mat = Ogre::MaterialManager::getSingleton().getByName(((Ogre::TerrainMaterialGenerator*)getParent())->mMaterialName);
 
     // Get default pass
@@ -72,8 +71,7 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
 
     //Ogre::TexturePtr nmtx = terrain->getTerrainNormalMap();
     //tu->setTexturePtr(nmtx);
-    
-    return mat;
+    return _material;
 }
 /// Generate / reuse a material for the terrain
 MaterialPtr CustomMaterialGenetator::CustomProfile::generateForCompositeMap(
