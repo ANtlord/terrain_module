@@ -18,10 +18,10 @@ This source file is part of the
 #include "../include/CustomProfile.h"
 #define ENDLESS_PAGE_MIN_X (0x0)
 #define ENDLESS_PAGE_MIN_Y (0x0)
-#define ENDLESS_PAGE_MAX_X 0x3
-#define ENDLESS_PAGE_MAX_Y 0x3
+#define ENDLESS_PAGE_MAX_X 0x1
+#define ENDLESS_PAGE_MAX_Y 0x0
 
-#define TERRAIN_WORLD_SIZE 12000.0f
+#define TERRAIN_WORLD_SIZE 6000.0f
 #define TERRAIN_SIZE 513
 #define HOLD_LOD_DISTANCE 3000.0
 #include <iostream>
@@ -78,7 +78,7 @@ void TerrainApplication::createScene(void)
     mTerrainPagedWorldSection = mTerrainPaging->createWorldSection(mPagedWorld,
             mTerrainGroup, 400, 500, ENDLESS_PAGE_MIN_X, ENDLESS_PAGE_MIN_Y,
             ENDLESS_PAGE_MAX_X, ENDLESS_PAGE_MAX_Y);
-    
+
     mCustomTerrainGenerator = OGRE_NEW CustomTerrainGenerator;
     mTerrainPagedWorldSection->setDefiner( mCustomTerrainGenerator );
 

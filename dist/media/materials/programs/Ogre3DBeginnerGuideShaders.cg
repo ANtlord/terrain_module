@@ -22,3 +22,14 @@ void MyFragmentShader1(in float4 texCoord : TEXCOORD0, out float4 color: COLOR,
     //float4 color2 = tex2D(tex2, float2(texCoord.x, texCoord.y));
     //color = lerp(color1, color2, texCoord.z);
 }
+
+void HeightBasedVertexShader(float4 position : POSITION, out float4 oPosition : TEXCOORD,
+    uniform float4x4 worldViewMatrix)
+{
+    oPosition =  position;
+}
+
+void HeightBasedFragmentShader(in float4 oPosition : TEXCOORD, out float4 color: COLOR)
+{
+    color = float4(1, 0, oPosition.z, 1);
+}

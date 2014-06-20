@@ -38,7 +38,7 @@ CustomMaterialGenetator::CustomProfile::CustomProfile(
         ) : TerrainMaterialGenerator::Profile(parent, name,
             desc)
 {
-    _material = MaterialManager::getSingleton().getByName("Study/test1");
+    _material = MaterialManager::getSingleton().getByName("Study/HeightBasedMaterial");
 }
 
 CustomMaterialGenetator::CustomProfile::~CustomProfile()

@@ -2,13 +2,14 @@
 #include <iostream>
 void CustomTerrainGenerator::define(TerrainGroup* terrainGroup, long x, long y)
 {
-    std::cout<<"\nx: "<<x<<"\ny: "<<y<<"\n";
-    int num = (x)+y*4;
+    const int MAX_VALUE = 1;
     Image img;
     Ogre::String name = "small-";
-    name += Ogre::StringConverter::toString(num)+".png";
-    std::cout<<"\nname: "<<name.c_str()<<std::endl;
+    name += Ogre::StringConverter::toString( MAX_VALUE - (x+y*4) )+".png";
+    //std::cout<<"\nx: "<<x<<"\ny: "<<y<<std::endl;
+    //std::cout<<"\nname: "<<name.c_str()<<std::endl;
     img.load(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    //img.load("heightmap.png", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     //if (x % 2)
         //img.flipAroundY();
     //if (y % 2)

@@ -17,6 +17,34 @@ vertex_program MyVertexShader1 cg
     }
 }
 
+fragment_program HeightBasedFragmentShader cg
+{
+    source Ogre3DBeginnerGuideShaders.cg
+    entry_point HeightBasedFragmentShader
+    profiles ps_1_1 arbfp1
+}
+
+vertex_program HeightBasedVertexShader cg
+{
+    source Ogre3DBeginnerGuideShaders.cg
+    entry_point HeightBasedVertexShader
+    profiles vs_1_1 arbvp1
+
+    default_params
+    {
+        param_named_auto worldViewMatrix worldviewproj_matrix
+    }
+}
+
+material Study/HeightBasedMaterial {
+    technique {
+        pass {
+            fragment_program_ref HeightBasedFragmentShader {}
+            vertex_program_ref HeightBasedVertexShader {}
+        }
+    }
+}
+
 material Study/test1 {
     technique {
         pass {
