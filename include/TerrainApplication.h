@@ -24,7 +24,7 @@ This source file is part of the
 #include <Terrain/OgreTerrain.h>
 #include <Terrain/OgreTerrainGroup.h>
 #include "BaseApplication.h"
-#include "PerlinNoiseTerrainGenerator.h"
+#include "CustomTerrainGenerator.h"
 #include <OgreVector3.h>
 
 class TerrainApplication : public BaseApplication
@@ -47,7 +47,7 @@ private:
     Ogre::PageManager* mPageManager;
     Ogre::PagedWorld* mPagedWorld;
 
-	PerlinNoiseTerrainGenerator* mPerlinNoiseTerrainGenerator;
+	CustomTerrainGenerator* mCustomTerrainGenerator;
 	bool mLodStatus;
 	bool mAutoLod;
     bool mTerrainsImported;

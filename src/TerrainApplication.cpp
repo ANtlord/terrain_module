@@ -16,10 +16,10 @@ This source file is part of the
 */
 #include "../include/TerrainApplication.h"
 #include "../include/CustomProfile.h"
-#define ENDLESS_PAGE_MIN_X (-0x7FFF)
-#define ENDLESS_PAGE_MIN_Y (-0x7FFF)
-#define ENDLESS_PAGE_MAX_X 0x7FFF
-#define ENDLESS_PAGE_MAX_Y 0x7FFF
+#define ENDLESS_PAGE_MIN_X (0x0)
+#define ENDLESS_PAGE_MIN_Y (0x0)
+#define ENDLESS_PAGE_MAX_X 0x3
+#define ENDLESS_PAGE_MAX_Y 0x3
 
 #define TERRAIN_WORLD_SIZE 12000.0f
 #define TERRAIN_SIZE 513
@@ -75,21 +75,12 @@ void TerrainApplication::createScene(void)
     mPageManager->setDebugDisplayLevel(0);
     mTerrainPaging = OGRE_NEW TerrainPaging(mPageManager);
     mPagedWorld = mPageManager->createWorld();
-    mTerrainPagedWorldSection = mTerrainPaging->createWorldSection(mPagedWorld, mTerrainGroup, 400, 500, 
-        ENDLESS_PAGE_MIN_X, ENDLESS_PAGE_MIN_Y, 
-        ENDLESS_PAGE_MAX_X, ENDLESS_PAGE_MAX_Y);
-
+    mTerrainPagedWorldSection = mTerrainPaging->createWorldSection(mPagedWorld,
+            mTerrainGroup, 400, 500, ENDLESS_PAGE_MIN_X, ENDLESS_PAGE_MIN_Y,
+            ENDLESS_PAGE_MAX_X, ENDLESS_PAGE_MAX_Y);
     
-    mPerlinNoiseTerrainGenerator = OGRE_NEW PerlinNoiseTerrainGenerator;
-    mTerrainPagedWorldSection->setDefiner( mPerlinNoiseTerrainGenerator );
-
-    //if (mTerrainsImported) {
-        //Ogre::TerrainGroup::TerrainIterator ti = mTerrainGroup->getTerrainIterator();
-        //while(ti.hasMoreElements()) {
-            //Ogre::Terrain* t = ti.getNext()->instance;
-            //this->initBlendMaps(t);
-        //}
-    //}
+    mCustomTerrainGenerator = OGRE_NEW CustomTerrainGenerator;
+    mTerrainPagedWorldSection->setDefiner( mCustomTerrainGenerator );
 
     mTerrainGroup->freeTemporaryResources();
 }
@@ -156,15 +147,12 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
 {
     mTerrainGlobals->setMaxPixelError(8);
     mTerrainGlobals->setCompositeMapDistance(3000);
+    
+    // Setup material generator.
     Ogre::TerrainMaterialGeneratorPtr generator;
     generator.bind(new Ogre::CustomMaterialGenetator());
-    //generator = mTerrainGlobals->getDefaultMaterialGenerator();
     generator->setLightmapEnabled(false);
-    //Ogre::CustomMaterialGenetator::CustomProfile profile(generator.getPointer(), "qwe", "asd");
-    //generator->setActiveProfile(&profile);
     mTerrainGlobals->setDefaultMaterialGenerator(generator);
-    //Ogre::TerrainMaterialGenerator::Profile * profile =
-        //Ogre::TerrainMaterialGenerator::Profile(generator, "customProfile", "short desc");
     
     mTerrainGlobals->setCompositeMapAmbient(mSceneMgr->getAmbientLight());
     mTerrainGlobals->setCompositeMapDiffuse(light->getDiffuseColour());

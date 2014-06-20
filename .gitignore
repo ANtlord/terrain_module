@@ -6,3 +6,4 @@ Makefile
 dist/bin/OgreApp
 dist/bin/Ogre.log
 dist/bin/ogre.cfg
+dist/media/materials/textures/terrain3.png
