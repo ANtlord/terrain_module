@@ -23,13 +23,17 @@ void MyFragmentShader1(in float4 texCoord : TEXCOORD0, out float4 color: COLOR,
     //color = lerp(color1, color2, texCoord.z);
 }
 
-void HeightBasedVertexShader(float4 position : POSITION, out float4 oPosition : TEXCOORD,
+void HeightBasedVertexShader(float4 position : POSITION,
+    out float4 oPosition : POSITION,
+    out float4 dum : TEXCOORD0,
     uniform float4x4 worldViewMatrix)
 {
-    oPosition =  position;
+    oPosition =  mul(worldViewMatrix, position);
+    dum = position;
 }
 
-void HeightBasedFragmentShader(in float4 oPosition : TEXCOORD, out float4 color: COLOR)
+void HeightBasedFragmentShader(in float4 oPosition : TEXCOORD0, out float4 color: COLOR)
 {
-    color = float4(1, 0, oPosition.z, 1);
+    float value = oPosition.y/300;
+    color = float4(value, value, value, 1);
 }
