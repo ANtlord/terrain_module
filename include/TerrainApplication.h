@@ -17,10 +17,10 @@ This source file is part of the
 #ifndef __TerrainApplication_h_
 #define __TerrainApplication_h_
 
-#include <OGRE/Terrain/OgreTerrainQuadTreeNode.h>
-#include <OGRE/Terrain/OgreTerrainMaterialGeneratorA.h>
-#include <OGRE/Terrain/OgreTerrainPagedWorldSection.h>
-#include <OGRE/Terrain/OgreTerrainPaging.h>
+#include <Terrain/OgreTerrainQuadTreeNode.h>
+#include <Terrain/OgreTerrainMaterialGeneratorA.h>
+#include <Terrain/OgreTerrainPagedWorldSection.h>
+#include <Terrain/OgreTerrainPaging.h>
 #include <Terrain/OgreTerrain.h>
 #include <Terrain/OgreTerrainGroup.h>
 #include "BaseApplication.h"

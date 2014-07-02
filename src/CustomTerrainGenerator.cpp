@@ -2,9 +2,19 @@
 #include <iostream>
 #include <string.h>
 #include <sstream>
+
+const uint8 CustomTerrainGenerator::ENDLESS_PAGE_MIN_X = 0;
+const uint8 CustomTerrainGenerator::ENDLESS_PAGE_MIN_Y = 0;
+const uint8 CustomTerrainGenerator::ENDLESS_PAGE_MAX_X = 3;
+const uint8 CustomTerrainGenerator::ENDLESS_PAGE_MAX_Y = 3;
+
 void CustomTerrainGenerator::define(TerrainGroup* terrainGroup, long x, long y)
 {
-    const int MAX_VALUE = 1;
+    if (x < ENDLESS_PAGE_MIN_X) x = ENDLESS_PAGE_MIN_X;
+    if (x > ENDLESS_PAGE_MAX_X) x = ENDLESS_PAGE_MAX_X;
+    if (y < ENDLESS_PAGE_MIN_Y) y = ENDLESS_PAGE_MIN_Y;
+    if (y > ENDLESS_PAGE_MAX_Y) y = ENDLESS_PAGE_MAX_Y;
+
     Image img;
     std::stringstream qwe;
     int c = (x+y*4);

@@ -16,15 +16,6 @@ This source file is part of the
 */
 #include "../include/TerrainApplication.h"
 #include "../include/CustomProfile.h"
-//#define ENDLESS_PAGE_MIN_X (0x0)
-//#define ENDLESS_PAGE_MIN_Y (0x0)
-//#define ENDLESS_PAGE_MAX_X 0x3
-//#define ENDLESS_PAGE_MAX_Y 0x3
-
-#define ENDLESS_PAGE_MIN_X 0
-#define ENDLESS_PAGE_MIN_Y 0
-#define ENDLESS_PAGE_MAX_X 3
-#define ENDLESS_PAGE_MAX_Y 3
 
 #define TERRAIN_WORLD_SIZE 6000.0f
 #define TERRAIN_SIZE 513
@@ -80,9 +71,16 @@ void TerrainApplication::createScene(void)
     mPageManager->setDebugDisplayLevel(0);
     mTerrainPaging = OGRE_NEW TerrainPaging(mPageManager);
     mPagedWorld = mPageManager->createWorld();
+    //mTerrainPagedWorldSection = mTerrainPaging->createWorldSection(mPagedWorld,
+            //mTerrainGroup, 400, 500, ENDLESS_PAGE_MIN_X, ENDLESS_PAGE_MIN_Y,
+            //ENDLESS_PAGE_MAX_X, ENDLESS_PAGE_MAX_Y);
     mTerrainPagedWorldSection = mTerrainPaging->createWorldSection(mPagedWorld,
-            mTerrainGroup, 400, 500, ENDLESS_PAGE_MIN_X, ENDLESS_PAGE_MIN_Y,
-            ENDLESS_PAGE_MAX_X, ENDLESS_PAGE_MAX_Y);
+            mTerrainGroup, 400, 500,
+            CustomTerrainGenerator::ENDLESS_PAGE_MIN_X,
+            CustomTerrainGenerator::ENDLESS_PAGE_MIN_Y,
+            CustomTerrainGenerator::ENDLESS_PAGE_MAX_X,
+            CustomTerrainGenerator::ENDLESS_PAGE_MAX_Y
+            );
 
     mCustomTerrainGenerator = OGRE_NEW CustomTerrainGenerator;
     mTerrainPagedWorldSection->setDefiner( mCustomTerrainGenerator );
