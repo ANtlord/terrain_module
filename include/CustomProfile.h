@@ -41,7 +41,7 @@ public:
         virtual void requestOptions(Terrain* terrain);
 
     private:
-        MaterialPtr _material;
+        //MaterialPtr _material;
 
     };
 protected:

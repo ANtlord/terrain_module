@@ -21,7 +21,6 @@ CustomMaterialGenetator::CustomMaterialGenetator()
         TerrainLayerSamplerElement(1, TLSS_NORMAL, 0, 3));
     mLayerDecl.elements.push_back(
         TerrainLayerSamplerElement(1, TLSS_HEIGHT, 3, 1));
-
     mProfiles.push_back(OGRE_NEW CustomProfile(this, "qwe",
                 "Profile for rendering on Shader Model 2 capable cards"));
     // TODO - check hardware capabilities & use fallbacks if required (more profiles needed)
@@ -38,7 +37,7 @@ CustomMaterialGenetator::CustomProfile::CustomProfile(
         ) : TerrainMaterialGenerator::Profile(parent, name,
             desc)
 {
-    _material = MaterialManager::getSingleton().getByName("Study/HeightBasedMaterial");
+    //_material = MaterialManager::getSingleton().getByName("Study/HeightBasedMaterial");
 }
 
 CustomMaterialGenetator::CustomProfile::~CustomProfile()
@@ -54,24 +53,37 @@ bool CustomMaterialGenetator::CustomProfile::isVertexCompressionSupported() cons
 MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terrain)
 {
     //const Ogre::String matName = terrain->getMaterialName();        
-    
-    //Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(matName);
-    //if (!mat.isNull())
+    //Ogre::Pass * pass = mat->createTechnique()->createPass();
+    MaterialPtr mat = terrain->_getMaterial();
+    if (mat.isNull()) {
+        mat = Ogre::MaterialManager::getSingleton().getByName("Study/HeightBasedMaterial");
+    }
         //MaterialManager::getSingleton().remove(matName);
      
     // Set Ogre material 
     //mat = Ogre::MaterialManager::getSingleton().getByName(((Ogre::TerrainMaterialGenerator*)getParent())->mMaterialName);
 
     // Get default pass
-//    Ogre::Pass *p = mat->getTechnique(0)->getPass(0);
-//    std::cout<<"CustomProfile_DevLog::generate\n";
+    //Ogre::Pass *p = mat->getTechnique(0)->getPass(0);
+    //std::cout<<"CustomProfile_DevLog::generate\n";
 
     // Add terrain's global normalmap to renderpass so the fragment program can find it.
     //Ogre::TextureUnitState *tu = p->createTextureUnitState(matName+"/nm");
 
     //Ogre::TexturePtr nmtx = terrain->getTerrainNormalMap();
     //tu->setTexturePtr(nmtx);
-    return _material;
+    //const std::string MAT_NAME = "superMaterial";
+    //Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(
+            //MAT_NAME, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+            //);
+    //Ogre::Technique* lFirstTechnique = mat->getTechnique(0);
+    //Ogre::Pass* lFirstPass = lFirstTechnique->getPass(0);
+    //lFirstPass->setDiffuse(0.8f, 0.0f, 0.0f, 1.0f);
+    //lFirstPass->setAmbient(0.3f, 0.3f, 0.3f);
+    //lFirstPass->setSpecular(0.0f, 0.0f, 1.0f, 1.0f);
+    //lFirstPass->setShininess(0.0f);
+    //lFirstPass->setSelfIllumination(0.1f, 0.1f, 0.1f);
+    return mat;
 }
 /// Generate / reuse a material for the terrain
 MaterialPtr CustomMaterialGenetator::CustomProfile::generateForCompositeMap(
