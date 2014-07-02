@@ -22,11 +22,11 @@ void CustomTerrainGenerator::define(TerrainGroup* terrainGroup, long x, long y)
     //name += Ogre::StringConverter::toString(c)+".png";
     //std::cout<<"\nx: "<<x<<"\ny: "<<y<<std::endl;
     //std::cout<<"\nname: "<<name.c_str()<<std::endl;
-    img.load(qwe.str(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    //img.load("heightmap.png", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    //if (x % 2)
-        //img.flipAroundY();
-    //if (y % 2)
-        //img.flipAroundX();
+    //img.load(qwe.str(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    img.load("terrain.png", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    if (x % 2)
+        img.flipAroundY();
+    if (y % 2)
+        img.flipAroundX();
     terrainGroup->defineTerrain(x, y, &img);
 }

@@ -17,7 +17,7 @@ This source file is part of the
 #include "../include/TerrainApplication.h"
 #include "../include/CustomProfile.h"
 
-#define TERRAIN_WORLD_SIZE 6000.0f
+#define TERRAIN_WORLD_SIZE 12000.0f
 #define TERRAIN_SIZE 513
 #define HOLD_LOD_DISTANCE 3000.0
 #include <iostream>
@@ -89,62 +89,62 @@ void TerrainApplication::createScene(void)
 }
 
 //-------------------------------------------------------------------------------------
-void getTerrainImage(bool flipX, bool flipY, Ogre::Image& img)
-{
-    img.load("terrain.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    if (flipX)
-        img.flipAroundY();
-    if (flipY)
-        img.flipAroundX();
-}
+//void getTerrainImage(bool flipX, bool flipY, Ogre::Image& img)
+//{
+    //img.load("terrain.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    //if (flipX)
+        //img.flipAroundY();
+    //if (flipY)
+        //img.flipAroundX();
+//}
 
 //-------------------------------------------------------------------------------------
-void TerrainApplication::defineTerrain(long x, long y)
-{
-    Ogre::String filename = mTerrainGroup->generateFilename(x, y);
-    if (Ogre::ResourceGroupManager::getSingleton().resourceExists(
-                mTerrainGroup->getResourceGroup(), filename)) {
-        mTerrainGroup->defineTerrain(x, y);
-    }
-    else {
-        Ogre::Image img;
-        getTerrainImage(x % 2 != 0, y % 2 != 0, img);
-        mTerrainGroup->defineTerrain(x, y, &img);
-        mTerrainsImported = true;
-    }
-}
+//void TerrainApplication::defineTerrain(long x, long y)
+//{
+    //Ogre::String filename = mTerrainGroup->generateFilename(x, y);
+    //if (Ogre::ResourceGroupManager::getSingleton().resourceExists(
+                //mTerrainGroup->getResourceGroup(), filename)) {
+        //mTerrainGroup->defineTerrain(x, y);
+    //}
+    //else {
+        //Ogre::Image img;
+        //getTerrainImage(x % 2 != 0, y % 2 != 0, img);
+        //mTerrainGroup->defineTerrain(x, y, &img);
+        //mTerrainsImported = true;
+    //}
+//}
 
 //-------------------------------------------------------------------------------------
-void TerrainApplication::initBlendMaps(Ogre::Terrain* terrain)
-{
-    Ogre::TerrainLayerBlendMap* blendMap0 = terrain->getLayerBlendMap(1);
-    Ogre::TerrainLayerBlendMap* blendMap1 = terrain->getLayerBlendMap(2);
-    Ogre::Real minHeight0 = 70;
-    Ogre::Real fadeDist0 = 40;
-    Ogre::Real minHeight1 = 70;
-    Ogre::Real fadeDist1 = 15;
-    float* pBlend0 = blendMap0->getBlendPointer();
-    float* pBlend1 = blendMap1->getBlendPointer();
-    for (Ogre::uint16 y = 0; y < terrain->getLayerBlendMapSize(); ++y) {
-        for (Ogre::uint16 x = 0; x < terrain->getLayerBlendMapSize(); ++x) {
-            Ogre::Real tx, ty;
+//void TerrainApplication::initBlendMaps(Ogre::Terrain* terrain)
+//{
+    //Ogre::TerrainLayerBlendMap* blendMap0 = terrain->getLayerBlendMap(1);
+    //Ogre::TerrainLayerBlendMap* blendMap1 = terrain->getLayerBlendMap(2);
+    //Ogre::Real minHeight0 = 70;
+    //Ogre::Real fadeDist0 = 40;
+    //Ogre::Real minHeight1 = 70;
+    //Ogre::Real fadeDist1 = 15;
+    //float* pBlend0 = blendMap0->getBlendPointer();
+    //float* pBlend1 = blendMap1->getBlendPointer();
+    //for (Ogre::uint16 y = 0; y < terrain->getLayerBlendMapSize(); ++y) {
+        //for (Ogre::uint16 x = 0; x < terrain->getLayerBlendMapSize(); ++x) {
+            //Ogre::Real tx, ty;
  
-            blendMap0->convertImageToTerrainSpace(x, y, &tx, &ty);
-            Ogre::Real height = terrain->getHeightAtTerrainPosition(tx, ty);
-            Ogre::Real val = (height - minHeight0) / fadeDist0;
-            val = Ogre::Math::Clamp(val, (Ogre::Real)0, (Ogre::Real)1);
-            *pBlend0++ = val;
+            //blendMap0->convertImageToTerrainSpace(x, y, &tx, &ty);
+            //Ogre::Real height = terrain->getHeightAtTerrainPosition(tx, ty);
+            //Ogre::Real val = (height - minHeight0) / fadeDist0;
+            //val = Ogre::Math::Clamp(val, (Ogre::Real)0, (Ogre::Real)1);
+            //*pBlend0++ = val;
  
-            val = (height - minHeight1) / fadeDist1;
-            val = Ogre::Math::Clamp(val, (Ogre::Real)0, (Ogre::Real)1);
-            *pBlend1++ = val;
-        }
-    }
-    blendMap0->dirty();
-    blendMap1->dirty();
-    blendMap0->update();
-    blendMap1->update();
-}
+            //val = (height - minHeight1) / fadeDist1;
+            //val = Ogre::Math::Clamp(val, (Ogre::Real)0, (Ogre::Real)1);
+            //*pBlend1++ = val;
+        //}
+    //}
+    //blendMap0->dirty();
+    //blendMap1->dirty();
+    //blendMap0->update();
+    //blendMap1->update();
+//}
 //-------------------------------------------------------------------------------------
 void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
 {
@@ -152,10 +152,11 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
     mTerrainGlobals->setCompositeMapDistance(3000);
     
     // Setup material generator.
-    Ogre::TerrainMaterialGeneratorPtr generator;
-    generator.bind(new Ogre::CustomMaterialGenetator());
-    generator->setLightmapEnabled(false);
-    mTerrainGlobals->setDefaultMaterialGenerator(generator);
+    //Ogre::TerrainMaterialGeneratorPtr generator;
+    //generator.bind(new Ogre::CustomMaterialGenetator());
+    //generator->setLightmapEnabled(false);
+    //mTerrainGlobals->setDefaultMaterialGenerator(generator);
+    mTerrainGlobals->getDefaultMaterialGenerator();
     
     mTerrainGlobals->setCompositeMapAmbient(mSceneMgr->getAmbientLight());
     mTerrainGlobals->setCompositeMapDiffuse(light->getDiffuseColour());
@@ -169,16 +170,16 @@ void TerrainApplication::configureTerrainDefaults(Ogre::Light* light)
     defaultimp.maxBatchSize = 65;
 
 	// textures
-    //defaultimp.layerList.resize(3);
-    //defaultimp.layerList[0].worldSize = 100;
-    //defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_diffusespecular.dds");
-    //defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_normalheight.dds");
-    //defaultimp.layerList[1].worldSize = 30;
-    //defaultimp.layerList[1].textureNames.push_back("grass_green-01_diffusespecular.dds");
-    //defaultimp.layerList[1].textureNames.push_back("grass_green-01_normalheight.dds");
-    //defaultimp.layerList[2].worldSize = 200;
-    //defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_diffusespecular.dds");
-    //defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_normalheight.dds");
+    defaultimp.layerList.resize(3);
+    defaultimp.layerList[0].worldSize = 100;
+    defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_diffusespecular.dds");
+    defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_normalheight.dds");
+    defaultimp.layerList[1].worldSize = 30;
+    defaultimp.layerList[1].textureNames.push_back("grass_green-01_diffusespecular.dds");
+    defaultimp.layerList[1].textureNames.push_back("grass_green-01_normalheight.dds");
+    defaultimp.layerList[2].worldSize = 200;
+    defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_diffusespecular.dds");
+    defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_normalheight.dds");
 }
 
 void TerrainApplication::destroyScene(void)
