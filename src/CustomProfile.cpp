@@ -1,9 +1,11 @@
 #include "../include/CustomProfile.h"
 
 using namespace Ogre;
-#include <OgreTerrain.h>
-#include <Terrain/OgreTerrainMaterialGenerator.h>
 
+#include <OgreTerrain.h>
+#include <OgreHighLevelGpuProgramManager.h>
+#include <OgreGpuProgramManager.h>
+#include <Terrain/OgreTerrainMaterialGenerator.h>
 CustomMaterialGenetator::CustomMaterialGenetator()
 {
     // define the layers
@@ -49,40 +51,30 @@ bool CustomMaterialGenetator::CustomProfile::isVertexCompressionSupported() cons
 {
     return false;
 }		
-/// Generate / reuse a material for the terrain
+/// Generate / reuse a material for the terrain.
 MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terrain)
 {
-    //const Ogre::String matName = terrain->getMaterialName();        
-    //Ogre::Pass * pass = mat->createTechnique()->createPass();
     MaterialPtr mat = terrain->_getMaterial();
     if (mat.isNull()) {
-        mat = Ogre::MaterialManager::getSingleton().getByName("Study/HeightBasedMaterial");
+        MaterialManager& matMgr = MaterialManager::getSingleton();
+        const String& matName = terrain->getMaterialName();
+        mat = matMgr.getByName(matName);
+        if (mat.isNull()) {
+            // Program must not create material and mustn't get it from material script.
+            mat = matMgr.create("qweasd_material", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+            Ogre::Pass * pass = mat->getTechnique(0)->getPass(0);
+            HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
+            HighLevelGpuProgramPtr vprog = mgr.createProgram("tvprog", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+				"cg", GPT_VERTEX_PROGRAM);
+            HighLevelGpuProgramPtr fprog = mgr.createProgram("tfprog", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+				"cg", GPT_FRAGMENT_PROGRAM);
+            vprog->setSource("void HeightBasedVertexShader(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; }");
+            fprog->setSource("void HeightBasedFragmentShader(in float4 oPosition : TEXCOORD0, out float4 color: COLOR) { float value = oPosition.y/300; color = float4(value, value, value, 1); }");
+
+            pass->setVertexProgram("HeightBasedVertexShader");
+            pass->setFragmentProgram("HeightBasedFragmentShader");
+        }
     }
-        //MaterialManager::getSingleton().remove(matName);
-     
-    // Set Ogre material 
-    //mat = Ogre::MaterialManager::getSingleton().getByName(((Ogre::TerrainMaterialGenerator*)getParent())->mMaterialName);
-
-    // Get default pass
-    //Ogre::Pass *p = mat->getTechnique(0)->getPass(0);
-    //std::cout<<"CustomProfile_DevLog::generate\n";
-
-    // Add terrain's global normalmap to renderpass so the fragment program can find it.
-    //Ogre::TextureUnitState *tu = p->createTextureUnitState(matName+"/nm");
-
-    //Ogre::TexturePtr nmtx = terrain->getTerrainNormalMap();
-    //tu->setTexturePtr(nmtx);
-    //const std::string MAT_NAME = "superMaterial";
-    //Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(
-            //MAT_NAME, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
-            //);
-    //Ogre::Technique* lFirstTechnique = mat->getTechnique(0);
-    //Ogre::Pass* lFirstPass = lFirstTechnique->getPass(0);
-    //lFirstPass->setDiffuse(0.8f, 0.0f, 0.0f, 1.0f);
-    //lFirstPass->setAmbient(0.3f, 0.3f, 0.3f);
-    //lFirstPass->setSpecular(0.0f, 0.0f, 1.0f, 1.0f);
-    //lFirstPass->setShininess(0.0f);
-    //lFirstPass->setSelfIllumination(0.1f, 0.1f, 0.1f);
     return mat;
 }
 /// Generate / reuse a material for the terrain
