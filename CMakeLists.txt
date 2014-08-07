@@ -110,14 +110,14 @@ set(HDRS
 	./include/BaseApplication.h
 	./include/TerrainApplication.h
     ./include/CustomTerrainGenerator.h
-    ./include/CustomProfile.h
+    ./include/CustomMaterialGenetator.h
 )
  
 set(SRCS
 	./src/BaseApplication.cpp
 	./src/TerrainApplication.cpp
     ./src/CustomTerrainGenerator.cpp
-    ./src/CustomProfile.cpp
+    ./src/CustomMaterialGenetator.cpp
 )
 set(OGRE_INCLUDE_DIRS "/usr/local/include/OGRE")
 set(OGRE_SDK_BUILD true)

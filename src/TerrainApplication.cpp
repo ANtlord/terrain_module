@@ -15,7 +15,7 @@ This source file is part of the
 -----------------------------------------------------------------------------
 */
 #include "../include/TerrainApplication.h"
-#include "../include/CustomProfile.h"
+#include "../include/CustomMaterialGenetator.h"
 
 #define TERRAIN_WORLD_SIZE 12000.0f
 #define TERRAIN_SIZE 513

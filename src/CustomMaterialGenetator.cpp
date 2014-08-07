@@ -1,4 +1,4 @@
-#include "../include/CustomProfile.h"
+#include "../include/CustomMaterialGenetator.h"
 
 using namespace Ogre;
 
@@ -6,6 +6,9 @@ using namespace Ogre;
 #include <OgreHighLevelGpuProgramManager.h>
 #include <OgreGpuProgramManager.h>
 #include <Terrain/OgreTerrainMaterialGenerator.h>
+#include "../include/CustomTerrainGenerator.h"
+#include <math.h>
+#include <OgreTextureManager.h>
 CustomMaterialGenetator::CustomMaterialGenetator()
 {
     // define the layers
@@ -14,7 +17,6 @@ CustomMaterialGenetator::CustomMaterialGenetator()
     // similarly we double-up the normal and height (for parallax)
     mLayerDecl.samplers.push_back(TerrainLayerSampler("albedo_specular", PF_BYTE_RGBA));
     mLayerDecl.samplers.push_back(TerrainLayerSampler("normal_height", PF_BYTE_RGBA));
-    
     mLayerDecl.elements.push_back(
         TerrainLayerSamplerElement(0, TLSS_ALBEDO, 0, 3));
     mLayerDecl.elements.push_back(
@@ -60,16 +62,62 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
         const String& matName = terrain->getMaterialName();
         mat = matMgr.getByName(matName);
         if (mat.isNull()) {
+            //const int X = terrain->getPosition().x / CustomTerrainGenerator::TERRAIN_WORLD_SIZE;
+            //const int Y = terrain->getPosition().z / CustomTerrainGenerator::TERRAIN_WORLD_SIZE;
+            //std::cout << "X: "<<X <<"Y: "<<Y << std::endl;
+
+
             // Program must not create material and mustn't get it from material script.
             mat = matMgr.create("qweasd_material", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-            Ogre::Pass * pass = mat->getTechnique(0)->getPass(0);
+            //Material::LodValueList lodValues;
+            //lodValues.push_back(TerrainGlobalOptions::getSingleton().getCompositeMapDistance());
+            //mat->setLodLevels(lodValues);
+
+            Pass * pass = mat->getTechnique(0)->getPass(0); // Technique for high LOD.
+            //Technique * tech = 0;   // Technique for low LOD.
+            //if (mat->getNumTechniques() == 1) {
+                //tech = mat->createTechnique();
+                //tech->setLodIndex(1);
+            //}
+            //else tech = mat->getTechnique(1);
+            //Pass * pass2 = 0;
+            //if (tech != 0) {
+                //if (tech->getNumPasses() == 0) pass2 = tech->createPass();
+                //else pass2 = tech->getPass(0);
+            //}
+            //else {
+                //std::cout << "pass hasn't been created" << std::endl;
+            //}
+
             HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
-            HighLevelGpuProgramPtr vprog = mgr.createProgram("tvprog", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
-				"cg", GPT_VERTEX_PROGRAM);
-            HighLevelGpuProgramPtr fprog = mgr.createProgram("tfprog", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
-				"cg", GPT_FRAGMENT_PROGRAM);
-            vprog->setSource("void HeightBasedVertexShader(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; }");
-            fprog->setSource("void HeightBasedFragmentShader(in float4 oPosition : TEXCOORD0, out float4 color: COLOR) { float value = oPosition.y/300; color = float4(value, value, value, 1); }");
+            HighLevelGpuProgramPtr vprog = mgr.createProgram("tvprog",
+                    ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, "cg",
+                    GPT_VERTEX_PROGRAM);
+            HighLevelGpuProgramPtr fprog = mgr.createProgram("tfprog",
+                    ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, "cg",
+                    GPT_FRAGMENT_PROGRAM);
+            
+            //std::string textureNames[3] = {"blending_map.png", "tusk.jpg", "GreenSkin.jpg"};
+            //for (std::string item : textureNames) {
+                //TexturePtr tex = TextureManager::getSingleton().load(
+                        //item, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+                    //);
+                
+                //// Create indentificator of unit state for checking.
+                //std::string UNIT_STATE_NAME = item.substr(0, item.size()-4);
+                //if (pass->getTextureUnitState(UNIT_STATE_NAME) == 0) {
+                    //pass->createTextureUnitState(UNIT_STATE_NAME)->setTexture(tex);
+                //}
+            //}
+            //std::stringstream strStream;
+            //vprog->setParameter("entry_point", "qwe");
+            //fprog->setParameter("entry_point", "asd");
+            //vprog->setSource(" void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; } ");
+
+            //strStream <<
+            //fprog->setSource( "void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR){ float value = oPosition.y/300; color = float4(value, value, value, 1); }");
+            //vprog->setSource("void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; }");
+            //fprog->setSource("void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR) { float value = oPosition.y/300; color = float4(value, value, value, 1); }");
 
             pass->setVertexProgram("HeightBasedVertexShader");
             pass->setFragmentProgram("HeightBasedFragmentShader");

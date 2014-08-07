@@ -1,5 +1,5 @@
-#ifndef CUSTOMPROFILE_H
-#define CUSTOMPROFILE_H
+#ifndef CUSTOMMATERIALGENETATOR_H
+#define CUSTOMMATERIALGENETATOR_H
 
 #include <OGRE/Terrain/OgreTerrainMaterialGenerator.h>
 
@@ -51,4 +51,4 @@ private:
 
 
 }
-#endif //CUSTOMPROFILE_H
+#endif //CUSTOMMATERIALGENETATOR_H
