@@ -110,21 +110,60 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
                 //}
             //}
             //std::stringstream strStream;
-            //vprog->setParameter("entry_point", "qwe");
-            //fprog->setParameter("entry_point", "asd");
+            vprog->setParameter("entry_point", "qwe");
+            fprog->setParameter("entry_point", "asd");
+            vprog->setParameter("profiles", "ps_1_1 arbvp1");
+            fprog->setParameter("profiles", "ps_1_1 arbfp1");
             //vprog->setSource(" void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; } ");
 
             //strStream <<
             //fprog->setSource( "void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR){ float value = oPosition.y/300; color = float4(value, value, value, 1); }");
-            //vprog->setSource("void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; }");
-            //fprog->setSource("void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR) { float value = oPosition.y/300; color = float4(value, value, value, 1); }");
+            vprog->setSource(" void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; } ");
+            fprog->setSource(" void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR) { float value = oPosition.y/300; color = float4(value, value, value, 1); } ");
+            vprog->load();
+            fprog->load();
 
-            pass->setVertexProgram("HeightBasedVertexShader");
-            pass->setFragmentProgram("HeightBasedFragmentShader");
+            GpuProgramParametersSharedPtr params = vprog->getDefaultParameters();
+            params->setIgnoreMissingParams(true);
+            params->setNamedAutoConstant("worldMatrix", GpuProgramParameters::ACT_WORLD_MATRIX);
+            params->setNamedAutoConstant("viewMatrix", GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
+            params->setNamedAutoConstant("viewProjMatrix", GpuProgramParameters::ACT_VIEWPROJ_MATRIX);
+            params->setNamedAutoConstant("lodMorph", GpuProgramParameters::ACT_CUSTOM, 
+                Terrain::LOD_MORPH_CUSTOM_PARAM);
+            params->setNamedAutoConstant("fogParams", GpuProgramParameters::ACT_FOG_PARAMS);
+
+            //if (terrain->_getUseVertexCompression() && tt != RENDER_COMPOSITE_MAP)
+            //{
+                //Matrix4 posIndexToObjectSpace;
+                //terrain->getPointTransform(&posIndexToObjectSpace);
+                //params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
+            //}
+
+            params = fprog->getDefaultParameters();
+            params->setIgnoreMissingParams(true);
+            params->setNamedAutoConstant("worldMatrix", GpuProgramParameters::ACT_WORLD_MATRIX);
+            params->setNamedAutoConstant("viewMatrix", GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
+            params->setNamedAutoConstant("viewProjMatrix", GpuProgramParameters::ACT_VIEWPROJ_MATRIX);
+            params->setNamedAutoConstant("lodMorph", GpuProgramParameters::ACT_CUSTOM, 
+                Terrain::LOD_MORPH_CUSTOM_PARAM);
+            params->setNamedAutoConstant("fogParams", GpuProgramParameters::ACT_FOG_PARAMS);
+
+            //if (terrain->_getUseVertexCompression() && tt != RENDER_COMPOSITE_MAP)
+            //{
+                //Matrix4 posIndexToObjectSpace;
+                //terrain->getPointTransform(&posIndexToObjectSpace);
+                //params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
+            //}
+
+
+
+            pass->setVertexProgram(vprog->getName());
+            pass->setFragmentProgram(fprog->getName());
         }
     }
     return mat;
 }
+
 /// Generate / reuse a material for the terrain
 MaterialPtr CustomMaterialGenetator::CustomProfile::generateForCompositeMap(
         const Terrain* terrain)
