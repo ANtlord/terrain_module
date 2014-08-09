@@ -26,6 +26,7 @@ if(WIN32)
 endif(WIN32)
  
 if(UNIX)
+    SET(CMAKE_CXX_FLAGS "-std=c++0x")
 	if(EXISTS "/usr/local/lib/OGRE/cmake")
 
 	  set(CMAKE_MODULE_PATH "/usr/local/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}")

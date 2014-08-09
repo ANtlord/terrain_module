@@ -41,7 +41,6 @@ CustomMaterialGenetator::CustomProfile::CustomProfile(
         ) : TerrainMaterialGenerator::Profile(parent, name,
             desc)
 {
-    //_material = MaterialManager::getSingleton().getByName("Study/HeightBasedMaterial");
 }
 
 CustomMaterialGenetator::CustomProfile::~CustomProfile()
@@ -111,18 +110,19 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
                     GPT_FRAGMENT_PROGRAM);
             
             //std::string textureNames[3] = {"blending_map.png", "tusk.jpg", "GreenSkin.jpg"};
-            //for (std::string item : textureNames) {
-                //TexturePtr tex = TextureManager::getSingleton().load(
-                        //item, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
-                    //);
+            std::string textureNames[1] = {"grass_mini.jpg"};
+            for (std::string item : textureNames) {
+                TexturePtr tex = TextureManager::getSingleton().load(
+                        item, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+                    );
                 
-                //// Create indentificator of unit state for checking.
-                //std::string UNIT_STATE_NAME = item.substr(0, item.size()-4);
-                //if (pass->getTextureUnitState(UNIT_STATE_NAME) == 0) {
-                    //pass->createTextureUnitState(UNIT_STATE_NAME)->setTexture(tex);
-                //}
-            //}
-            //std::stringstream strStream;
+                // Create indentificator of unit state for checking.
+                std::string UNIT_STATE_NAME = item.substr(0, item.size()-4);
+                if (pass->getTextureUnitState(UNIT_STATE_NAME) == 0) {
+                    pass->createTextureUnitState(UNIT_STATE_NAME)->setTexture(tex);
+                }
+            }
+
             const std::string VERTEX_SHADER_ENTRY_NAME = "qwe";
             const std::string FRAGMENT_SHADER_ENTRY_NAME = "asd";
 
@@ -130,37 +130,33 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             fprog->setParameter("entry_point", FRAGMENT_SHADER_ENTRY_NAME);
             vprog->setParameter("profiles", "ps_1_1 arbvp1");
             fprog->setParameter("profiles", "ps_1_1 arbfp1");
-            //vprog->setSource(" void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; } ");
 
             const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
             //strStream <<
-            //fprog->setSource( "void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR){ float value = oPosition.y/300; color = float4(value, value, value, 1); }");
             std::stringstream ss;
             ss<<"void "<<VERTEX_SHADER_ENTRY_NAME<<"(float4 position : POSITION,"
-                "out float4 oPosition : POSITION, out float4 dum : TEXCOORD0,"
+                "out float4 oPosition : POSITION, out float4 texCoord : TEXCOORD0,"
                 "uniform float4x4 "<<WORLDVIEWPROJ_MATRIX_NAME<<")"
                 //" out float4 texCoord : TEXCOORD0)"
                 "{"
                     "oPosition =  mul("<<WORLDVIEWPROJ_MATRIX_NAME<<", position);"
-                    "dum = position;"
-                    //"texCoord.x = position.x/12000.;"
-                    //"texCoord.y = position.z/12000.;"
+                    //"texCoord = position;"
+                    "texCoord.x = position.x/513;"
+                    "texCoord.y = position.z/513;"
                 "}";
             vprog->setSource(ss.str());
-            //vprog->setSource("void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; } ");
-            //
             ss.clear();
             ss<<"void "<<FRAGMENT_SHADER_ENTRY_NAME<<
-                "(in float4 oPosition : TEXCOORD0, out float4 color: COLOR)"
-                //"uniform sampler2D tex1 : register(s0))"
-                //"{ color = tex2D(tex1, float2(texCoord.x, texCoord.y)); }";
+                "(in float4 texCoord : TEXCOORD0, out float4 color: COLOR,"
+                "uniform sampler2D tex1 : register(s0))"
+                //;
                 "{"
                     //"color = float4(1,1,1,1); "
-                    "float value = oPosition.y/300;"
-                    "color = float4(value, value, value, 1);"
+                    //"float value = texCoord.y/300;"
+                    //"color = float4(value, value, value, 1);"
+                    "color = tex2D(tex1, float2(texCoord.x, texCoord.y));"
                 "}";
             fprog->setSource(ss.str());
-            //fprog->setSource("void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR) { float value = oPosition.y/300; color = float4(value, value, value, 1); } ");
             vprog->load();
             fprog->load();
 
