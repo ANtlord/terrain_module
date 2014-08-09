@@ -52,7 +52,20 @@ CustomMaterialGenetator::CustomProfile::~CustomProfile()
 bool CustomMaterialGenetator::CustomProfile::isVertexCompressionSupported() const
 {
     return false;
-}		
+}
+HighLevelGpuProgramPtr initShader(const std::string name, GpuProgramType gptype)
+{
+    HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
+    HighLevelGpuProgramPtr vprog = mgr.getByName(name);
+    if (vprog.isNull()) {
+        vprog = mgr.createProgram(name,
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, "cg", gptype);
+    }
+    else {
+        vprog->unload();
+    }
+    return vprog;
+}
 /// Generate / reuse a material for the terrain.
 MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terrain)
 {
@@ -88,13 +101,13 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             //else {
                 //std::cout << "pass hasn't been created" << std::endl;
             //}
+            const std::string VERTEX_SHADER_NAME = "tvprog";
+            const std::string FRAGMENT_SHADER_NAME = "tfprog";
 
             HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
-            HighLevelGpuProgramPtr vprog = mgr.createProgram("tvprog",
-                    ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, "cg",
+            HighLevelGpuProgramPtr vprog = initShader(VERTEX_SHADER_NAME,
                     GPT_VERTEX_PROGRAM);
-            HighLevelGpuProgramPtr fprog = mgr.createProgram("tfprog",
-                    ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, "cg",
+            HighLevelGpuProgramPtr fprog = initShader(FRAGMENT_SHADER_NAME,
                     GPT_FRAGMENT_PROGRAM);
             
             //std::string textureNames[3] = {"blending_map.png", "tusk.jpg", "GreenSkin.jpg"};
@@ -110,43 +123,53 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
                 //}
             //}
             //std::stringstream strStream;
-            vprog->setParameter("entry_point", "qwe");
-            fprog->setParameter("entry_point", "asd");
+            const std::string VERTEX_SHADER_ENTRY_NAME = "qwe";
+            const std::string FRAGMENT_SHADER_ENTRY_NAME = "asd";
+
+            vprog->setParameter("entry_point", VERTEX_SHADER_ENTRY_NAME);
+            fprog->setParameter("entry_point", FRAGMENT_SHADER_ENTRY_NAME);
             vprog->setParameter("profiles", "ps_1_1 arbvp1");
             fprog->setParameter("profiles", "ps_1_1 arbfp1");
             //vprog->setSource(" void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; } ");
 
+            const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
             //strStream <<
             //fprog->setSource( "void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR){ float value = oPosition.y/300; color = float4(value, value, value, 1); }");
-            vprog->setSource(" void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; } ");
-            fprog->setSource(" void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR) { float value = oPosition.y/300; color = float4(value, value, value, 1); } ");
+            std::stringstream ss;
+            ss<<"void "<<VERTEX_SHADER_ENTRY_NAME<<"(float4 position : POSITION,"
+                "out float4 oPosition : POSITION, out float4 dum : TEXCOORD0,"
+                "uniform float4x4 "<<WORLDVIEWPROJ_MATRIX_NAME<<")"
+                //" out float4 texCoord : TEXCOORD0)"
+                "{"
+                    "oPosition =  mul("<<WORLDVIEWPROJ_MATRIX_NAME<<", position);"
+                    "dum = position;"
+                    //"texCoord.x = position.x/12000.;"
+                    //"texCoord.y = position.z/12000.;"
+                "}";
+            vprog->setSource(ss.str());
+            //vprog->setSource("void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; } ");
+            //
+            ss.clear();
+            ss<<"void "<<FRAGMENT_SHADER_ENTRY_NAME<<
+                "(in float4 oPosition : TEXCOORD0, out float4 color: COLOR)"
+                //"uniform sampler2D tex1 : register(s0))"
+                //"{ color = tex2D(tex1, float2(texCoord.x, texCoord.y)); }";
+                "{"
+                    //"color = float4(1,1,1,1); "
+                    "float value = oPosition.y/300;"
+                    "color = float4(value, value, value, 1);"
+                "}";
+            fprog->setSource(ss.str());
+            //fprog->setSource("void asd(in float4 oPosition : TEXCOORD0, out float4 color: COLOR) { float value = oPosition.y/300; color = float4(value, value, value, 1); } ");
             vprog->load();
             fprog->load();
 
             GpuProgramParametersSharedPtr params = vprog->getDefaultParameters();
-            params->setNamedAutoConstant("worldViewMatrix",
+            params->setNamedAutoConstant(WORLDVIEWPROJ_MATRIX_NAME,
                     GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
-                //params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
-            //}
 
-            //params = fprog->getDefaultParameters();
-            //params->setIgnoreMissingParams(true);
-            //params->setNamedAutoConstant("worldMatrix", GpuProgramParameters::ACT_WORLD_MATRIX);
-            //params->setNamedAutoConstant("viewMatrix", GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
-            //params->setNamedAutoConstant("viewProjMatrix", GpuProgramParameters::ACT_VIEWPROJ_MATRIX);
-            //params->setNamedAutoConstant("lodMorph", GpuProgramParameters::ACT_CUSTOM, 
-                //Terrain::LOD_MORPH_CUSTOM_PARAM);
-            //params->setNamedAutoConstant("fogParams", GpuProgramParameters::ACT_FOG_PARAMS);
-
-            //if (terrain->_getUseVertexCompression() && tt != RENDER_COMPOSITE_MAP)
-            //{
-                //Matrix4 posIndexToObjectSpace;
-                //terrain->getPointTransform(&posIndexToObjectSpace);
-                //params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
-            //}
-
-            pass->setVertexProgram(vprog->getName());
-            pass->setFragmentProgram(fprog->getName());
+            pass->setVertexProgram(VERTEX_SHADER_NAME);
+            pass->setFragmentProgram(FRAGMENT_SHADER_NAME);
         }
     }
     return mat;
