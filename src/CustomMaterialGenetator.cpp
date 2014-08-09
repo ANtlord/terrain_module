@@ -124,13 +124,19 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             fprog->load();
 
             GpuProgramParametersSharedPtr params = vprog->getDefaultParameters();
-            params->setIgnoreMissingParams(true);
-            params->setNamedAutoConstant("worldMatrix", GpuProgramParameters::ACT_WORLD_MATRIX);
-            params->setNamedAutoConstant("viewMatrix", GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
-            params->setNamedAutoConstant("viewProjMatrix", GpuProgramParameters::ACT_VIEWPROJ_MATRIX);
-            params->setNamedAutoConstant("lodMorph", GpuProgramParameters::ACT_CUSTOM, 
-                Terrain::LOD_MORPH_CUSTOM_PARAM);
-            params->setNamedAutoConstant("fogParams", GpuProgramParameters::ACT_FOG_PARAMS);
+            params->setNamedAutoConstant("worldViewMatrix",
+                    GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+                //params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
+            //}
+
+            //params = fprog->getDefaultParameters();
+            //params->setIgnoreMissingParams(true);
+            //params->setNamedAutoConstant("worldMatrix", GpuProgramParameters::ACT_WORLD_MATRIX);
+            //params->setNamedAutoConstant("viewMatrix", GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
+            //params->setNamedAutoConstant("viewProjMatrix", GpuProgramParameters::ACT_VIEWPROJ_MATRIX);
+            //params->setNamedAutoConstant("lodMorph", GpuProgramParameters::ACT_CUSTOM, 
+                //Terrain::LOD_MORPH_CUSTOM_PARAM);
+            //params->setNamedAutoConstant("fogParams", GpuProgramParameters::ACT_FOG_PARAMS);
 
             //if (terrain->_getUseVertexCompression() && tt != RENDER_COMPOSITE_MAP)
             //{
@@ -138,24 +144,6 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
                 //terrain->getPointTransform(&posIndexToObjectSpace);
                 //params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
             //}
-
-            params = fprog->getDefaultParameters();
-            params->setIgnoreMissingParams(true);
-            params->setNamedAutoConstant("worldMatrix", GpuProgramParameters::ACT_WORLD_MATRIX);
-            params->setNamedAutoConstant("viewMatrix", GpuProgramParameters::ACT_WORLDVIEW_MATRIX);
-            params->setNamedAutoConstant("viewProjMatrix", GpuProgramParameters::ACT_VIEWPROJ_MATRIX);
-            params->setNamedAutoConstant("lodMorph", GpuProgramParameters::ACT_CUSTOM, 
-                Terrain::LOD_MORPH_CUSTOM_PARAM);
-            params->setNamedAutoConstant("fogParams", GpuProgramParameters::ACT_FOG_PARAMS);
-
-            //if (terrain->_getUseVertexCompression() && tt != RENDER_COMPOSITE_MAP)
-            //{
-                //Matrix4 posIndexToObjectSpace;
-                //terrain->getPointTransform(&posIndexToObjectSpace);
-                //params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
-            //}
-
-
 
             pass->setVertexProgram(vprog->getName());
             pass->setFragmentProgram(fprog->getName());
