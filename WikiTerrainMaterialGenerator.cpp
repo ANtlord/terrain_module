@@ -321,7 +321,8 @@ namespace Ogre
 	}
 	//---------------------------------------------------------------------
 	void TerrainMaterialGeneratorD::SM2Profile::ShaderHelper::generateVertexProgramSource(
-		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt, StringUtil::StrStreamType& outStream)
+		const SM2Profile* prof, const Terrain* terrain, TechniqueType tt,
+        StringUtil::StrStreamType& outStream)
 	{
 		generateVpHeader(prof, terrain, tt, outStream);
 
