@@ -111,39 +111,23 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             std::cout << "jurk !!!" << vprog->isSupported() << std::endl;
             
             //std::string textureNames[3] = {"blending_map.png", "tusk.jpg", "GreenSkin.jpg"};
-            std::string textureNames[1] = {"grass_mini.jpg"};
-            for (std::string item : textureNames) {
-                TexturePtr tex = TextureManager::getSingleton().load(
-                        item, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
-                    );
+            //std::string textureNames[1] = {"grass_mini.jpg"};
+            //for (std::string item : textureNames) {
+                //TexturePtr tex = TextureManager::getSingleton().load(
+                        //item, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+                    //);
                 
-                // Create indentificator of unit state for checking.
-                std::string UNIT_STATE_NAME = item.substr(0, item.size()-4);
-                if (pass->getTextureUnitState(UNIT_STATE_NAME) == 0) {
-                    pass->createTextureUnitState(UNIT_STATE_NAME)->setTexture(tex);
-                }
-            }
-            std::cout << "ass jurk" << std::endl;
+                //// Create indentificator of unit state for checking.
+                //std::string UNIT_STATE_NAME = item.substr(0, item.size()-4);
+                //if (pass->getTextureUnitState(UNIT_STATE_NAME) == 0) {
+                    //pass->createTextureUnitState(UNIT_STATE_NAME)->setTexture(tex);
+                //}
+            //}
+            //std::cout << "ass jurk" << std::endl;
 
             const std::string VERTEX_SHADER_ENTRY_NAME = "qwe";
             const std::string FRAGMENT_SHADER_ENTRY_NAME = "asd";
             const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
-
-
-            GpuProgramParametersSharedPtr params = vprog->getDefaultParameters();
-            //const GpuProgramParametersSharedPtr &params = pass->getVertexProgramParameters();
-            params->setIgnoreMissingParams(false);
-            params->setNamedConstant(WORLDVIEWPROJ_MATRIX_NAME, GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
-            //std::cout << "asdjaksjhkasdhkashdkasjd" << std::endl;
-            //const GpuConstantDefinition * par =  params->_findNamedConstantDefinition("qweasdzxc");
-            //if (par == 0) {
-                //std::cout << "FUCK" << std::endl;
-                //exit(-1);
-            //}
-            //else {
-                //std::cout << "else FUCK" << std::endl;
-            //}
-            //std::cout << "qweqweqweqweqweqweqweqw" << std::endl;
 
             //strStream <<
             std::stringstream ss;
@@ -153,31 +137,47 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
                 //" out float4 texCoord : TEXCOORD0)"
                 "{"
                     "oPosition =  mul("<<WORLDVIEWPROJ_MATRIX_NAME<<", position);"
-                    //"texCoord = position;"
-                    "texCoord.x = position.x/513;"
-                    "texCoord.y = position.z/513;"
+                    "texCoord = position;"
+                    //"texCoord.x = position.x/513;"
+                    //"texCoord.y = position.z/513;"
                 "}";
             vprog->setSource(ss.str());
             ss.clear();
             ss<<"void "<<FRAGMENT_SHADER_ENTRY_NAME<<
-                "(in float4 texCoord : TEXCOORD0, out float4 color: COLOR,"
-                "uniform sampler2D tex1 : register(s0))"
-                //;
+                "(in float4 texCoord : TEXCOORD0, out float4 color: COLOR"
+                //"uniform sampler2D tex1 : register(s0))"
+                ")"
                 "{"
                     //"color = float4(1,1,1,1); "
                     //"float value = texCoord.y/300;"
-                    //"color = float4(value, value, value, 1);"
-                    "color = tex2D(tex1, float2(texCoord.x, texCoord.y));"
+                    "color = float4(0.5, 0.0, 0.0, 1);"
+                    //"color = tex2D(tex1, float2(texCoord.x, texCoord.y));"
                 "}";
             fprog->setSource(ss.str());
 
             vprog->setParameter("entry_point", VERTEX_SHADER_ENTRY_NAME);
             fprog->setParameter("entry_point", FRAGMENT_SHADER_ENTRY_NAME);
-            vprog->setParameter("profiles", "vs_4_0 vs_3_0 vs_2_0 arbvp1");
-            fprog->setParameter("profiles", "ps_4_0 ps_3_0 ps_2_x fp40 arbfp1");
+            //vprog->setParameter("profiles", "vs_4_0 vs_3_0 vs_2_0 arbvp1");
+            //fprog->setParameter("profiles", "ps_4_0 ps_3_0 ps_2_x fp40 arbfp1");
+            vprog->setParameter("profiles", "glslv");
+            fprog->setParameter("profiles", "glslf");
 
             vprog->load();
             fprog->load();
+
+            //const GpuProgramParametersSharedPtr &params = vprog->getDefaultParameters();
+            //params->setIgnoreMissingParams(true);
+            //params->setNamedConstant(WORLDVIEWPROJ_MATRIX_NAME,
+                    //GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+            //std::cout << "BEFORE FUCKING IF" << std::endl;
+            //if (params->_findNamedConstantDefinition(WORLDVIEWPROJ_MATRIX_NAME) == 0) {
+                //std::cout << "FUCK" << std::endl;
+                //exit(-1);
+            //}
+            //else {
+                //std::cout << "else FUCK" << std::endl;
+            //}
+
             pass->setVertexProgram(VERTEX_SHADER_NAME);
             pass->setFragmentProgram(FRAGMENT_SHADER_NAME);
         }
