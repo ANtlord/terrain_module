@@ -128,8 +128,8 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
 
             vprog->setParameter("entry_point", VERTEX_SHADER_ENTRY_NAME);
             fprog->setParameter("entry_point", FRAGMENT_SHADER_ENTRY_NAME);
-            vprog->setParameter("profiles", "ps_1_1 arbvp1");
-            fprog->setParameter("profiles", "ps_1_1 arbfp1");
+            vprog->setParameter("profiles", "vs_4_0 arbvp1");
+            fprog->setParameter("profiles", "ps_4_0 arbfp1");
             //vprog->setSource(" void qwe(float4 position : POSITION, out float4 oPosition : POSITION, out float4 dum : TEXCOORD0, uniform float4x4 worldViewMatrix) { oPosition =  mul(worldViewMatrix, position); dum = position; } ");
 
             const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
