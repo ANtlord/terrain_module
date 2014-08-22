@@ -53,6 +53,30 @@ bool CustomMaterialGenetator::CustomProfile::isVertexCompressionSupported() cons
 {
     return false;
 }
+
+
+void setTesxturesToPass(Pass * pass, const std::string * textureNames,
+        int COUNT)
+{
+    for (int i = 0; i < COUNT; ++i) {
+        TexturePtr tex = TextureManager::getSingleton().load(
+                textureNames[i], ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+            );
+
+        // Create indentificator of unit state for checking.
+        std::string UNIT_STATE_NAME = textureNames[i].substr(0,
+                textureNames[i].size()-4);
+        if (pass->getTextureUnitState(UNIT_STATE_NAME) == 0) {
+            pass->createTextureUnitState(UNIT_STATE_NAME)->setTexture(tex);
+
+			//TextureUnitState* tu = pass->createTextureUnitState();
+			//tu->setTextureName(terrain->getCompositeMap()->getName());
+			//tu->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+        }
+    }
+}
+            
+
 HighLevelGpuProgramPtr initShader(const std::string name, GpuProgramType gptype)
 {
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
@@ -82,27 +106,39 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
 
             // Program must not create material and mustn't get it from material script.
             mat = matMgr.create("qweasd_material", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-            //Material::LodValueList lodValues;
-            //lodValues.push_back(TerrainGlobalOptions::getSingleton().getCompositeMapDistance());
-            //mat->setLodLevels(lodValues);
+            Material::LodValueList lodValues;
+            lodValues.push_back(TerrainGlobalOptions::getSingleton().getCompositeMapDistance());
+            mat->setLodLevels(lodValues);
 
             Pass * pass = mat->getTechnique(0)->getPass(0); // Technique for high LOD.
-            //Technique * tech = 0;   // Technique for low LOD.
-            //if (mat->getNumTechniques() == 1) {
-                //tech = mat->createTechnique();
-                //tech->setLodIndex(1);
-            //}
-            //else tech = mat->getTechnique(1);
-            //Pass * pass2 = 0;
-            //if (tech != 0) {
-                //if (tech->getNumPasses() == 0) pass2 = tech->createPass();
-                //else pass2 = tech->getPass(0);
-            //}
-            //else {
-                //std::cout << "pass hasn't been created" << std::endl;
-            //}
+            Technique * tech = 0;   // Technique for low LOD.
+            if (mat->getNumTechniques() == 1) {
+                tech = mat->createTechnique();
+                tech->setLodIndex(1);
+            }
+            else tech = mat->getTechnique(1);
+
+            Pass * pass2 = 0;
+            if (tech != 0) {
+                if (tech->getNumPasses() == 0) {
+                    pass2 = tech->createPass();
+                    //TextureUnitState* tu = pass2->createTextureUnitState();
+                    //tu->setTextureName(terrain->getCompositeMap()->getName());
+                    //tu->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+                }
+                else pass2 = tech->getPass(0);
+            }
+            else {
+                std::cout << "pass hasn't been created" << std::endl;
+            }
+
             const std::string VERTEX_SHADER_NAME = "tvprog";
             const std::string FRAGMENT_SHADER_NAME = "tfprog";
+            const std::string VERTEX_SHADER_ENTRY_NAME = "qwe";
+            const std::string FRAGMENT_SHADER_ENTRY_NAME = "asd";
+            const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
+            const std::string PASS_TEXTURE_NAMES[1] = {"grass_mini.jpg"};
+            const std::string PASS2_TEXTURE_NAMES[1] = {"tusk.jpg"};
 
             HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
             HighLevelGpuProgramPtr vprog = initShader(VERTEX_SHADER_NAME,
@@ -110,33 +146,18 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             HighLevelGpuProgramPtr fprog = initShader(FRAGMENT_SHADER_NAME,
                     GPT_FRAGMENT_PROGRAM);
 
-            std::string textureNames[1] = {"grass_mini.jpg"};
-            for (std::string item : textureNames) {
-                TexturePtr tex = TextureManager::getSingleton().load(
-                        item, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
-                    );
-                
-                // Create indentificator of unit state for checking.
-                std::string UNIT_STATE_NAME = item.substr(0, item.size()-4);
-                if (pass->getTextureUnitState(UNIT_STATE_NAME) == 0) {
-                    pass->createTextureUnitState(UNIT_STATE_NAME)->setTexture(tex);
-                }
-            }
-           
-            const std::string VERTEX_SHADER_ENTRY_NAME = "qwe";
-            const std::string FRAGMENT_SHADER_ENTRY_NAME = "asd";
+            setTesxturesToPass(pass, PASS_TEXTURE_NAMES, 1);
+            setTesxturesToPass(pass2, PASS2_TEXTURE_NAMES, 1);
 
             vprog->setParameter("entry_point", VERTEX_SHADER_ENTRY_NAME);
             fprog->setParameter("entry_point", FRAGMENT_SHADER_ENTRY_NAME);
             vprog->setParameter("profiles", "vs_4_0 arbvp1");
             fprog->setParameter("profiles", "ps_4_0 arbfp1");
 
-            const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
             std::stringstream ss;
             ss<<"void "<<VERTEX_SHADER_ENTRY_NAME<<"(float4 position : POSITION,"
                 "out float4 oPosition : POSITION, out float4 texCoord : TEXCOORD0,"
                 "uniform float4x4 "<<WORLDVIEWPROJ_MATRIX_NAME<<")"
-                //"out float4 texCoord : TEXCOORD0)"
                 "{"
                     "oPosition =  mul("<<WORLDVIEWPROJ_MATRIX_NAME<<", position);"
                     "texCoord.x = position.x/513.;"
@@ -146,11 +167,11 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             ss.clear();
             ss<<"void "<<FRAGMENT_SHADER_ENTRY_NAME<<
                 "(in float4 texCoord : TEXCOORD0, out float4 color: COLOR,"
-                "uniform sampler2D tex1 : register(s0))"
+                "uniform sampler2D tex1 : register(s0)"
+                //", uniform sampler2D tex2 : register(s1)"
+                ")"
                 "{"
                     "color = tex2D(tex1, float2(texCoord.x, texCoord.y));"
-                    //"float value = oPosition.y/300;"
-                    //"color = float4(value, value, value, 1);"
                 "}";
             fprog->setSource(ss.str());
             vprog->load();

@@ -9,6 +9,7 @@ class CustomMaterialGenetator : public TerrainMaterialGenerator {
 public:
     CustomMaterialGenetator();
     ~CustomMaterialGenetator();
+    enum LODS : uint8 {LOW_LOD=0, HIGH_LOD=1};
     class CustomProfile : public Ogre::TerrainMaterialGenerator::Profile {
     public:
         CustomProfile(TerrainMaterialGenerator* parent, const String& name,
