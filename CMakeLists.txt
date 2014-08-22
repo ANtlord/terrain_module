@@ -24,6 +24,7 @@ if(WIN32)
 		$ENV{OGRE_HOME}/Samples/include
 	)
 endif(WIN32)
+SET(CMAKE_CXX_FLAGS "-std=c++0x")
  
 if(UNIX)
 	if(EXISTS "/usr/local/lib/OGRE/cmake")
