@@ -141,10 +141,10 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             const std::string FRAGMENT_SHADER_ENTRY_NAME = "asd";
             const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
 
-            const uint8 NAMES_COUNT_1 = 2;
-            const uint8 NAMES_COUNT_2 = 2;
-            const std::string PASS_TEXTURE_NAMES[NAMES_COUNT_1] = {"grass_mini.jpg", "blending_map.png"};
-            const std::string PASS2_TEXTURE_NAMES[NAMES_COUNT_2] = {"tusk.jpg", "blending_map.png"};
+            const uint8 NAMES_COUNT_1 = 3;
+            const uint8 NAMES_COUNT_2 = 3;
+            const std::string PASS_TEXTURE_NAMES[NAMES_COUNT_1] = {"grass_mini.jpg", "tusk.jpg", "blending_map.png"};
+            const std::string PASS2_TEXTURE_NAMES[NAMES_COUNT_2] = {"grass_mini.jpg", "tusk.jpg", "blending_map.png"};
 
             HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
             HighLevelGpuProgramPtr vprog = initShader(VERTEX_SHADER_NAME,
@@ -164,25 +164,32 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             ss<<"void "<<VERTEX_SHADER_ENTRY_NAME<<"(float4 position : POSITION,"
                 "out float4 oPosition : POSITION,"
                 "float4 uv : TEXCOORD0,"
-                "out float2 texCoord : TEXCOORD0,"
+                "out float2 blendCoord : TEXCOORD0,"
+                "out float2 texCoord : TEXCOORD1,"
                 "uniform float4x4 "<<WORLDVIEWPROJ_MATRIX_NAME<<")"
                 "{"
                     "oPosition =  mul("<<WORLDVIEWPROJ_MATRIX_NAME<<", position);"
-                    "texCoord.x = uv.x;"
-                    "texCoord.y = uv.y;"
-                    //"texCoord.x = position.x/4000.;"
-                    //"texCoord.y = (1-position.z/4000.);"
+                    "blendCoord.x = uv.x;"
+                    "blendCoord.y = uv.y;"
+                    "texCoord.x = position.x/513.;"
+                    "texCoord.y = position.z/513.;"
                 "}";
             vprog->setSource(ss.str());
             ss.clear();
             ss<<"void "<<FRAGMENT_SHADER_ENTRY_NAME<<
-                "(in float4 texCoord : TEXCOORD0, out float4 color: COLOR,"
+                "(in float2 blendCoord : TEXCOORD0,"
+                "in float2 texCoord : TEXCOORD1,"
+
+                "out float4 color: COLOR,"
                 "uniform sampler2D tex1 : register(s0)"
-                ", uniform sampler2D blendmap: register(s1)"
-                //", uniform sampler2D tex2 : register(s1)"
+                ", uniform sampler2D tex2 : register(s1)"
+                ", uniform sampler2D blendmap: register(s2)"
                 ")"
                 "{"
-                    "color = tex2D(blendmap, float2(texCoord.x, texCoord.y));"
+                    "float4 blendColor = tex2D(blendmap, float2(blendCoord.x, blendCoord.y));"
+                    "float4 color1 = tex2D(tex1, float2(texCoord.x, texCoord.y));"
+                    "float4 color2 = tex2D(tex2, float2(texCoord.x, texCoord.y));"
+                    "color = (color1 * blendColor.g + color2 * blendColor.r);"
                 "}";
             fprog->setSource(ss.str());
             vprog->load();
