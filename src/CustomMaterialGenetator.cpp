@@ -99,9 +99,12 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
         const String& matName = terrain->getMaterialName();
         mat = matMgr.getByName(matName);
         if (mat.isNull()) {
-            //const int X = terrain->getPosition().x / CustomTerrainGenerator::TERRAIN_WORLD_SIZE;
-            //const int Y = terrain->getPosition().z / CustomTerrainGenerator::TERRAIN_WORLD_SIZE;
-            //std::cout << "X: "<<X <<"Y: "<<Y << std::endl;
+            const int X = terrain->getPosition().x / 12000.;
+            const int Y = terrain->getPosition().z / 12000.;
+            std::cout << "X: "<<X <<"Y: "<<Y << std::endl;
+			Real baseUVScale = 1.0f / (terrain->getSize() - 1);
+            std::cout << "terrain size: " << terrain->getSize() << std::endl;
+            std::cout << "terrain compression: " << terrain->_getUseVertexCompression() << std::endl;
 
 
             // Program must not create material and mustn't get it from material script.
@@ -137,8 +140,11 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             const std::string VERTEX_SHADER_ENTRY_NAME = "qwe";
             const std::string FRAGMENT_SHADER_ENTRY_NAME = "asd";
             const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
-            const std::string PASS_TEXTURE_NAMES[1] = {"grass_mini.jpg"};
-            const std::string PASS2_TEXTURE_NAMES[1] = {"tusk.jpg"};
+
+            const uint8 NAMES_COUNT_1 = 2;
+            const uint8 NAMES_COUNT_2 = 2;
+            const std::string PASS_TEXTURE_NAMES[NAMES_COUNT_1] = {"grass_mini.jpg", "blending_map.png"};
+            const std::string PASS2_TEXTURE_NAMES[NAMES_COUNT_2] = {"tusk.jpg", "blending_map.png"};
 
             HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
             HighLevelGpuProgramPtr vprog = initShader(VERTEX_SHADER_NAME,
@@ -146,8 +152,8 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             HighLevelGpuProgramPtr fprog = initShader(FRAGMENT_SHADER_NAME,
                     GPT_FRAGMENT_PROGRAM);
 
-            setTesxturesToPass(pass, PASS_TEXTURE_NAMES, 1);
-            setTesxturesToPass(pass2, PASS2_TEXTURE_NAMES, 1);
+            setTesxturesToPass(pass, PASS_TEXTURE_NAMES, NAMES_COUNT_1);
+            setTesxturesToPass(pass2, PASS2_TEXTURE_NAMES, NAMES_COUNT_2);
 
             vprog->setParameter("entry_point", VERTEX_SHADER_ENTRY_NAME);
             fprog->setParameter("entry_point", FRAGMENT_SHADER_ENTRY_NAME);
@@ -156,33 +162,42 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
 
             std::stringstream ss;
             ss<<"void "<<VERTEX_SHADER_ENTRY_NAME<<"(float4 position : POSITION,"
-                "out float4 oPosition : POSITION, out float4 texCoord : TEXCOORD0,"
+                "out float4 oPosition : POSITION,"
+                "float4 uv : TEXCOORD0,"
+                "out float2 texCoord : TEXCOORD0,"
                 "uniform float4x4 "<<WORLDVIEWPROJ_MATRIX_NAME<<")"
                 "{"
                     "oPosition =  mul("<<WORLDVIEWPROJ_MATRIX_NAME<<", position);"
-                    "texCoord.x = position.x/513.;"
-                    "texCoord.y = position.z/513.;"
+                    "texCoord.x = uv.x;"
+                    "texCoord.y = uv.y;"
+                    //"texCoord.x = position.x/4000.;"
+                    //"texCoord.y = (1-position.z/4000.);"
                 "}";
             vprog->setSource(ss.str());
             ss.clear();
             ss<<"void "<<FRAGMENT_SHADER_ENTRY_NAME<<
                 "(in float4 texCoord : TEXCOORD0, out float4 color: COLOR,"
                 "uniform sampler2D tex1 : register(s0)"
+                ", uniform sampler2D blendmap: register(s1)"
                 //", uniform sampler2D tex2 : register(s1)"
                 ")"
                 "{"
-                    "color = tex2D(tex1, float2(texCoord.x, texCoord.y));"
+                    "color = tex2D(blendmap, float2(texCoord.x, texCoord.y));"
                 "}";
             fprog->setSource(ss.str());
             vprog->load();
             fprog->load();
 
             GpuProgramParametersSharedPtr params = vprog->getDefaultParameters();
+            params->setIgnoreMissingParams(true);
             params->setNamedAutoConstant(WORLDVIEWPROJ_MATRIX_NAME,
                     GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+            params->setNamedConstant("baseUVScale", baseUVScale);
 
             pass->setVertexProgram(VERTEX_SHADER_NAME);
             pass->setFragmentProgram(FRAGMENT_SHADER_NAME);
+            pass2->setVertexProgram(VERTEX_SHADER_NAME);
+            pass2->setFragmentProgram(FRAGMENT_SHADER_NAME);
         }
     }
     return mat;
