@@ -140,7 +140,6 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             const std::string VERTEX_SHADER_ENTRY_NAME = "qwe";
             const std::string FRAGMENT_SHADER_ENTRY_NAME = "asd";
             const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
-
             const uint8 NAMES_COUNT_1 = 3;
             const uint8 NAMES_COUNT_2 = 3;
             const std::string PASS_TEXTURE_NAMES[NAMES_COUNT_1] = {"grass_mini.jpg", "tusk.jpg", "blending_map.png"};
@@ -172,7 +171,7 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
                     "blendCoord.x = uv.x;"
                     "blendCoord.y = uv.y;"
                     "texCoord.x = position.x/513.;"
-                    "texCoord.y = position.z/513.;"
+                    "texCoord.y = 1-position.z/513.;"
                 "}";
             vprog->setSource(ss.str());
             ss.clear();
@@ -237,7 +236,7 @@ void CustomMaterialGenetator::CustomProfile::updateParamsForCompositeMap(const M
 /// Request the options needed from the terrain
 void CustomMaterialGenetator::CustomProfile::requestOptions(Terrain* terrain)
 {
-    terrain->_setMorphRequired(true);
+    terrain->_setMorphRequired(false);
     terrain->_setNormalMapRequired(true); // enable global normal map
     terrain->_setLightMapRequired(false);
     terrain->_setCompositeMapRequired(false);
