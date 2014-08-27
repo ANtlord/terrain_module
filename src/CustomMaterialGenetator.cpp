@@ -137,8 +137,8 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             const std::string VERTEX_SHADER_ENTRY_NAME = "qwe";
             const std::string FRAGMENT_SHADER_ENTRY_NAME = "asd";
             const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
-            const std::string PASS_TEXTURE_NAMES[1] = {"grass_mini.jpg"};
-            const std::string PASS2_TEXTURE_NAMES[1] = {"tusk.jpg"};
+            const std::string PASS_TEXTURE_NAMES[1] = {"black_quad.jpg"};
+            const std::string PASS2_TEXTURE_NAMES[1] = {"black_quad.jpg"};
 
             HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
             HighLevelGpuProgramPtr vprog = initShader(VERTEX_SHADER_NAME,
@@ -161,7 +161,7 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
                 "{"
                     "oPosition =  mul("<<WORLDVIEWPROJ_MATRIX_NAME<<", position);"
                     "texCoord.x = position.x/513.;"
-                    "texCoord.y = position.z/513.;"
+                    "texCoord.y = 1-position.z/513.;"
                 "}";
             vprog->setSource(ss.str());
             ss.clear();
@@ -183,6 +183,8 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
 
             pass->setVertexProgram(VERTEX_SHADER_NAME);
             pass->setFragmentProgram(FRAGMENT_SHADER_NAME);
+            pass2->setVertexProgram(VERTEX_SHADER_NAME);
+            pass2->setFragmentProgram(FRAGMENT_SHADER_NAME);
         }
     }
     return mat;
@@ -215,7 +217,7 @@ void CustomMaterialGenetator::CustomProfile::updateParamsForCompositeMap(const M
 /// Request the options needed from the terrain
 void CustomMaterialGenetator::CustomProfile::requestOptions(Terrain* terrain)
 {
-    terrain->_setMorphRequired(true);
+    terrain->_setMorphRequired(false);
     terrain->_setNormalMapRequired(true); // enable global normal map
     terrain->_setLightMapRequired(false);
     terrain->_setCompositeMapRequired(false);
