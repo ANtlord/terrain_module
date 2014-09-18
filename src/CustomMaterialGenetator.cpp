@@ -55,6 +55,9 @@ bool CustomMaterialGenetator::CustomProfile::isVertexCompressionSupported() cons
 }
 
 
+/**
+    Method sets textures, were pointed by names, to pass.
+ */
 void setTesxturesToPass(Pass * pass, const std::string * textureNames,
         int COUNT)
 {
@@ -63,15 +66,10 @@ void setTesxturesToPass(Pass * pass, const std::string * textureNames,
                 textureNames[i], ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
             );
 
-        // Create indentificator of unit state for checking.
         std::string UNIT_STATE_NAME = textureNames[i].substr(0,
                 textureNames[i].size()-4);
         if (pass->getTextureUnitState(UNIT_STATE_NAME) == 0) {
             pass->createTextureUnitState(UNIT_STATE_NAME)->setTexture(tex);
-
-			//TextureUnitState* tu = pass->createTextureUnitState();
-			//tu->setTextureName(terrain->getCompositeMap()->getName());
-			//tu->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
         }
     }
 }
@@ -102,13 +100,14 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             const int X = terrain->getPosition().x / 12000.;
             const int Y = terrain->getPosition().z / 12000.;
             std::cout << "X: "<<X <<"Y: "<<Y << std::endl;
-			Real baseUVScale = 1.0f / (terrain->getSize() - 1);
+			Real BASE_UV_SCALE = 1.0f / (terrain->getSize() - 1);
             std::cout << "terrain size: " << terrain->getSize() << std::endl;
             std::cout << "terrain compression: " << terrain->_getUseVertexCompression() << std::endl;
 
 
             // Program must not create material and mustn't get it from material script.
-            mat = matMgr.create("qweasd_material", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+            mat = matMgr.create("qweasd_material",
+                    ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             Material::LodValueList lodValues;
             lodValues.push_back(TerrainGlobalOptions::getSingleton().getCompositeMapDistance());
             mat->setLodLevels(lodValues);
@@ -125,9 +124,6 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             if (tech != 0) {
                 if (tech->getNumPasses() == 0) {
                     pass2 = tech->createPass();
-                    //TextureUnitState* tu = pass2->createTextureUnitState();
-                    //tu->setTextureName(terrain->getCompositeMap()->getName());
-                    //tu->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
                 }
                 else pass2 = tech->getPass(0);
             }
@@ -135,6 +131,8 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
                 std::cout << "pass hasn't been created" << std::endl;
             }
 
+            // Options of shders. Names, entries, names of texture names,
+            // variables for shaders.
             const std::string VERTEX_SHADER_NAME = "tvprog";
             const std::string FRAGMENT_SHADER_NAME = "tfprog";
             const std::string VERTEX_SHADER_ENTRY_NAME = "qwe";
@@ -142,23 +140,33 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             const std::string WORLDVIEWPROJ_MATRIX_NAME = "worldViewMatrix";
             const uint8 NAMES_COUNT_1 = 3;
             const uint8 NAMES_COUNT_2 = 3;
-            const std::string PASS_TEXTURE_NAMES[NAMES_COUNT_1] = {"grass_mini.jpg", "tusk.jpg", "blending_map.png"};
-            const std::string PASS2_TEXTURE_NAMES[NAMES_COUNT_2] = {"grass_mini.jpg", "tusk.jpg", "blending_map.png"};
+            const std::string PASS_TEXTURE_NAMES[NAMES_COUNT_1] = {
+                "grass_mini.jpg", "tusk.jpg", "blending_map.png"
+            };
+            const std::string PASS2_TEXTURE_NAMES[NAMES_COUNT_2] = {
+                "grass_mini.jpg", "tusk.jpg", "blending_map.png"
+            };
 
+            // Gets manager of GPU programs and creates shaders.
             HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
             HighLevelGpuProgramPtr vprog = initShader(VERTEX_SHADER_NAME,
                     GPT_VERTEX_PROGRAM);
             HighLevelGpuProgramPtr fprog = initShader(FRAGMENT_SHADER_NAME,
                     GPT_FRAGMENT_PROGRAM);
 
+            // Relates textures and passes.
             setTesxturesToPass(pass, PASS_TEXTURE_NAMES, NAMES_COUNT_1);
             setTesxturesToPass(pass2, PASS2_TEXTURE_NAMES, NAMES_COUNT_2);
 
+            // Sets parameters.
             vprog->setParameter("entry_point", VERTEX_SHADER_ENTRY_NAME);
             fprog->setParameter("entry_point", FRAGMENT_SHADER_ENTRY_NAME);
+            // Sets version for vertex shader.
             vprog->setParameter("profiles", "vs_4_0 arbvp1");
+            // Sets version for pixel (fragment) shader.
             fprog->setParameter("profiles", "ps_4_0 arbfp1");
 
+            // Generates shaders.
             std::stringstream ss;
             ss<<"void "<<VERTEX_SHADER_ENTRY_NAME<<"(float4 position : POSITION,"
                 "out float4 oPosition : POSITION,"
@@ -194,12 +202,16 @@ MaterialPtr CustomMaterialGenetator::CustomProfile::generate(const Terrain* terr
             vprog->load();
             fprog->load();
 
+            // Sets uniform parameters.
             GpuProgramParametersSharedPtr params = vprog->getDefaultParameters();
             params->setIgnoreMissingParams(true);
+            // worldViewMatrix.
             params->setNamedAutoConstant(WORLDVIEWPROJ_MATRIX_NAME,
                     GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
-            params->setNamedConstant("baseUVScale", baseUVScale);
+            params->setNamedConstant("baseUVScale", BASE_UV_SCALE);
 
+            // Relates shaders and passes. Both passes are need for draw, then
+            // program uses same shaders.
             pass->setVertexProgram(VERTEX_SHADER_NAME);
             pass->setFragmentProgram(FRAGMENT_SHADER_NAME);
             pass2->setVertexProgram(VERTEX_SHADER_NAME);
